@@ -1,82 +1,29 @@
 #!/usr/bin/env python3
 
 import click
-import yaml
+import os
 import logging
 from pprint import pprint
-from functools import update_wrapper
-from bitshares import BitShares
-from bitshares.instance import set_shared_bitshares_instance
 from bitshares.price import Price
 from .pricefeed import Feed
-from . import ui
+from .ui import (
+    verbose,
+    chain,
+    unlock,
+    configfile,
+    print_prices,
+    confirmwarning,
+    confirmalert,
+    alert,
+)
 log = logging.getLogger(__name__)
-
-
-def verbose(f):
-    @click.pass_context
-    def new_func(ctx, *args, **kwargs):
-        global log
-        verbosity = [
-            "critical", "error", "warn", "info", "debug"
-        ][int(min(ctx.obj.get("verbose", 0), 4))]
-        log.setLevel(getattr(logging, verbosity.upper()))
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch = logging.StreamHandler()
-        ch.setLevel(getattr(logging, verbosity.upper()))
-        ch.setFormatter(formatter)
-        log.addHandler(ch)
-
-        # GrapheneAPI logging
-        if ctx.obj["verbose"] > 4:
-            verbosity = [
-                "critical", "error", "warn", "info", "debug"
-            ][int(min(ctx.obj.get("verbose", 4) - 4, 4))]
-            log = logging.getLogger("grapheneapi")
-            log.setLevel(getattr(logging, verbosity.upper()))
-            log.addHandler(ch)
-
-        if ctx.obj["verbose"] > 8:
-            verbosity = [
-                "critical", "error", "warn", "info", "debug"
-            ][int(min(ctx.obj.get("verbose", 8) - 8, 4))]
-            log = logging.getLogger("graphenebase")
-            log.setLevel(getattr(logging, verbosity.upper()))
-            log.addHandler(ch)
-
-        return ctx.invoke(f, *args, **kwargs)
-    return update_wrapper(new_func, f)
-
-
-def chain(f):
-    @click.pass_context
-    def new_func(ctx, *args, **kwargs):
-        ctx.bitshares = BitShares(bundle=True, **ctx.obj)
-        set_shared_bitshares_instance(ctx.bitshares)
-        return ctx.invoke(f, *args, **kwargs)
-    return update_wrapper(new_func, f)
-
-
-def unlock(f):
-    @click.pass_context
-    def new_func(ctx, *args, **kwargs):
-        if not ctx.obj.get("unsigned", False):
-            if ctx.bitshares.wallet.created():
-                pwd = click.prompt("Current Wallet Passphrase", hide_input=True)
-                ctx.bitshares.wallet.unlock(pwd)
-            else:
-                click.echo("No wallet installed yet. Creating ...")
-                pwd = click.prompt("Wallet Encryption Passphrase", hide_input=True, confirmation_prompt=True)
-                ctx.bitshares.wallet.create(pwd)
-        return ctx.invoke(f, *args, **kwargs)
-    return update_wrapper(new_func, f)
 
 
 @click.group()
 @click.option(
     "--configfile",
     default="config.yml",
-    type=click.File('r'),
+    #type=click.File('r'),
 )
 @click.option(
     "--confirm-warning/--no-confirm-warning",
@@ -93,8 +40,22 @@ def main(ctx, **kwargs):
     ctx.obj = {}
     for k, v in kwargs.items():
         ctx.obj[k] = v
-    ctx.obj["config"] = yaml.load(kwargs["configfile"])
 
+
+@main.command()
+@click.pass_context
+def create(ctx):
+    """ Create default config file
+    """
+    import shutil
+    this_dir, this_filename = os.path.split(__file__)
+    default_config_file = os.path.join(this_dir, "config-example.yaml")
+    config_file = ctx.obj["configfile"]
+    shutil.copyfile(
+        default_config_file,
+        config_file 
+    )
+    click.echo("Config file created: %s" % config_file)
 
 @main.command()
 @click.argument(
@@ -104,12 +65,13 @@ def main(ctx, **kwargs):
 )
 @click.pass_context
 @chain
+@configfile
 def update(ctx, assets):
-    feed = Feed(config=ctx.obj["config"])
+    feed = Feed(config=ctx.config)
     feed.fetch()
     feed.derive(assets)
     prices = feed.get_prices()
-    ui.print_prices(prices)
+    print_prices(prices)
 
     for symbol, price in prices.items():
         flags = price["flags"]
@@ -124,22 +86,21 @@ def update(ctx, assets):
             "over_warn_change" in flags and
             "skip_change" not in flags
         ):
-            if not ui.confirmwarning(
+            if not confirmwarning(
                 "Price change for %s has been above 'warn_change'. Please confirm!" % symbol
             ):
                 continue
 
         if "skip_change" in flags:
             if ctx.obj["skip_critical"]:
-                ui.alert(
+                alert(
                     "Price change for %s has been above 'skip_change'. Skipping!" % symbol
                 )
+                continue
             else:
-                if not ui.confirmalert(
+                if not confirmalert(
                     "Price change for %s has been above 'skip_change'. Please confirm to still publish, else feed will be skipped!" % symbol
                 ):
-                    pass
-                else:
                     continue
 
         settlement_price = Price(price["price"], quote=symbol, base=price["short_backing_symbol"])
@@ -150,10 +111,11 @@ def update(ctx, assets):
             cer=cer,
             mssr=price["mssr"],
             mcr=price["mcr"],
-            account=ctx.obj["config"]["producer"]
+            account=ctx.config["producer"]
         )
 
-    ctx.bitshares.txbuffer.broadcast()
+    if ctx.bitshares.txbuffer.ops:
+        ctx.bitshares.txbuffer.broadcast()
 
 
 if __name__ == '__main__':
