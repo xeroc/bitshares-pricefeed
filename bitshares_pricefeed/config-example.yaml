@@ -1,0 +1,311 @@
+# The RPC API node
+node: wss://this.uptick.rocks
+
+# If true, a new price feed needs manual confirmation
+confirm: True
+
+# The producer name(s)
+producer: in.abit
+
+# Exchange settings
+exchanges:
+    yahoo:
+        klass: Yahoo
+        enable: True
+        quotes:
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+        bases:
+            - USD
+            - EUR
+            - CNY
+            - JPY
+            - HKD
+    google:
+        klass: Google
+        enable: True
+        quotes:
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+        bases:
+            - USD
+            - EUR
+            - CNY
+            - JPY
+            - HKD
+    btcavg:
+        klass: BitcoinAverage
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
+            - CNY
+    poloniex:
+        klass: Poloniex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bittrex:
+        klass: Bittrex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    yunbi:
+        klass: Yunbi
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTS
+            - BTC
+        bases:
+            - CNY
+    btc38:
+        klass: Btc38
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTS
+            - BTC
+        bases:
+            - CNY
+            - BTC
+    btcchina:
+        klass: BtcChina
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    okcoin:
+        klass: Okcoin
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+            - USD
+    huobi:
+        klass: Huobi 
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    quandl:
+        klass: Quandl 
+        enable: True
+        datasets:
+            "GOLD:USD": 
+                - LBMA/GOLD
+                - PERTH/GOLD_USD_D
+            "SILVER:USD":
+                - LBMA/SILVER
+                - PERTH/SLVR_USD_D
+    bitshares:
+        klass: Graphene
+        enable: True
+        url: wss://bitshares.openledger.info/ws
+        allowFailure: True
+        quotes:
+            - USD
+            - CNY
+        bases:
+            - BTS
+    coinmarketcap:
+        klass: Coinmarketcap
+        enable: True
+        allowFailure: True
+    fixer:
+        klass: Fixer
+        enable: True
+        quotes:
+            - EUR
+            - CNY
+            - USD
+        base:
+            - EUR
+            - USD
+            - CNY
+    openexchangerates:
+        klass: OpenExchangeRates
+        enable: True
+        api_key: 
+        free_subscription: True
+        allowFailure: True
+        quotes:
+            - ARS
+            - BTC
+            - EUR
+            - JPY
+        base:
+            # Only USD with free subscription
+            - USD
+    currencylayer:
+        klass: CurrencyLayer
+        enable: True
+        api_key: 
+        free_subscription: True
+        allowFailure: True
+        quotes:
+            - ARS
+            - BTC
+            - EUR
+            - JPY
+        base:
+            # Only USD with free subscription
+            - USD
+        
+# default settings
+default:
+
+    # Type: extern, formula
+    type: extern
+
+    # reference is only required if type==formula
+    # if extern: formula may contain 
+    #    *  {USD[weighted]}
+    #    *  {USD[median]}
+    #    *  {USD[mean]}   or other assets than USD
+    #    with values derived from external exchanges
+    # if intern: settlement price can be taken from chain
+    #    accessible values are:
+    #    * {core_exchange_rate}
+    #    * {quoteSettlement_price}
+    #    * {latest}
+    #    while the asset needs to be defined with ref_asset
+    reference: extern
+    # ref_asset: USD
+
+    # max age of a feed
+    maxage: 43200
+
+    # minimum percentage that forces a publish
+    min_change: 0.5
+
+    # warn if price change goes above this percentage
+    warn_change: 1.5
+
+    # skip publishing a feed if price goes above this percentage
+    skip_change: 3
+
+    # how to derive a single price from several sources
+    # Choose from: "median", "mean", or "weighted" (by volume)
+    metric: weighted
+
+    # Select sources for this particular asset. Each source
+    # has its own fetch() method and collects several markets
+    # any market of an exchanges is considered but only the
+    # current asset's price is derived
+    #
+    # Choose from: - "*": all,
+    #              - loaded exchanges (see below)
+    sources:
+        - btcavg
+        - yahoo
+        - quandl
+        - google
+        - poloniex
+        - bittrex
+        - btc38
+        - yunbi
+        - bitshares
+
+    # Core exchange factor for paying transaction fees in
+    # non-BTS assets. Premium of 5%
+    core_exchange_factor: 1.05
+
+    # maintenance collateral ratio (percentage)
+    maintenance_collateral_ratio: 175.0
+
+    # Maximum short squeeze ratio
+    maximum_short_squeeze_ratio: 110.0
+
+    # If set to True, prices are also derived via 3
+    # markets instead of just two:
+    # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
+    derive_across_3markets: False
+
+assets:
+    BTC:
+        source:
+            - poloniex
+            - bittrex
+            - btc38
+            - yunbi
+    CNY:
+        sources:
+            - btc38
+            - yunbi
+            - huobi
+            - btcchina
+            - okcoin
+#    HERO:
+#        type: formula
+#        # reference
+#        reference: intern 
+#        ref_asset: USD
+#        formula: 100 * {quoteSettlement_price}
+
+    TUSD:
+        base: USD
+        scale: 1
+
+all_assets:
+    - AUD
+    - BTC
+    - CAD
+    - CHF
+    - CNY
+    - EUR
+    - GBP
+    - GOLD
+    - HKD
+    - JPY
+    - KRW
+    - MXN
+    - NZD
+    - SGD
+    - SILVER
+    - TRY
+    - USD
+
+intermediate_assets:
+    - CNY
+    - USD
+    - BTC
+    - EUR
+    - HKD
+    - JPY

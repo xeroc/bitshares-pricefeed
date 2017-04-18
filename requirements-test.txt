@@ -1,0 +1,4 @@
+bitshares
+pyyaml
+pytest
+coverage

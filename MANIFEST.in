@@ -1,0 +1,2 @@
+include *.md
+include bitshares_pricefeed/config-example.yaml

@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["index"],envversion:51,filenames:["index.rst"],objects:{},objnames:{},objtypes:{},terms:{need:0,still:0},titles:["Welcome to bitshares-pricefeed documentation!"],titleterms:{bitshar:0,document:0,pricefe:0,welcom:0}})
