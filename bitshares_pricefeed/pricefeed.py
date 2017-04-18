@@ -103,6 +103,9 @@ class Feed(object):
         pool = futures.ThreadPoolExecutor(max_workers=8)
 
         threads = {}
+        if "exchanges" not in self.config or not self.config["exchanges"]:
+            return
+
         for name, exchange in self.config["exchanges"].items():
             if "enable" in exchange and not exchange["enable"]:
                 continue
@@ -147,6 +150,9 @@ class Feed(object):
             corresponding price[quote][base] is derived accordingly and the
             corresponding volume is derived at spot price
         """
+        if "exchanges" not in self.config or not self.config["exchanges"]:
+            return
+
         for datasource in self.config["exchanges"]:
             if datasource not in self.feed:
                 continue
@@ -189,6 +195,9 @@ class Feed(object):
         symbol = asset["symbol"]
         backing_symbol = asset["short_backing_asset"]["symbol"]
 
+        if "intermediate_assets" not in self.config or not self.config["intermediate_assets"]:
+            return
+
         for interasset in self.config["intermediate_assets"]:
             if interasset == symbol:
                 continue
@@ -212,6 +221,9 @@ class Feed(object):
         """
         symbol = asset["symbol"]
         backing_symbol = asset["short_backing_asset"]["symbol"]
+
+        if "intermediate_assets" not in self.config or not self.config["intermediate_assets"]:
+            return
 
         if self.assetconf(symbol, "derive_across_3markets"):
             for interassetA in self.config["intermediate_assets"]:
