@@ -67,6 +67,7 @@ def create(ctx):
 @click.pass_context
 @configfile
 @chain
+@unlock
 def update(ctx, assets):
     feed = Feed(config=ctx.config)
     feed.fetch()
@@ -115,6 +116,8 @@ def update(ctx, assets):
             account=ctx.config["producer"]
         )
 
+    # ctx.bitshares.txbuffer.constructTx()
+    # pprint(ctx.bitshares.txbuffer.json())
     if ctx.bitshares.txbuffer.ops:
         ctx.bitshares.txbuffer.broadcast()
 

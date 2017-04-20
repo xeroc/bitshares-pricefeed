@@ -191,7 +191,7 @@ exchanges:
 # default settings
 default:
 
-    # Type: extern, formula
+    # Type: extern, formula, alias
     type: extern
 
     # reference is only required if type==formula
@@ -200,14 +200,26 @@ default:
     #    *  {USD[median]}
     #    *  {USD[mean]}   or other assets than USD
     #    with values derived from external exchanges
-    # if intern: settlement price can be taken from chain
+    #
+    # reference: extern
+
+    # if formula: settlement price can be taken from chain
     #    accessible values are:
     #    * {core_exchange_rate}
     #    * {quoteSettlement_price}
     #    * {latest}
     #    while the asset needs to be defined with ref_asset
-    reference: extern
+    #
     # ref_asset: USD
+    # formula: 100 * {quoteSettlement_price}
+    #
+    # if alias: Alias allows to change the name of the asset wrt to
+    #    external sources. E.g.:
+    #       SMART.USD:
+    #           type: alias
+    #           alias: USD
+    #
+    # alias: USD
 
     # max age of a feed
     maxage: 43200
