@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 @click.option(
     "--configfile",
     default="config.yml",
-    #type=click.File('r'),
+    # type=click.File('r'),
 )
 @click.option(
     "--confirm-warning/--no-confirm-warning",
@@ -53,9 +53,10 @@ def create(ctx):
     config_file = ctx.obj["configfile"]
     shutil.copyfile(
         default_config_file,
-        config_file 
+        config_file
     )
     click.echo("Config file created: %s" % config_file)
+
 
 @main.command()
 @click.argument(
@@ -64,8 +65,8 @@ def create(ctx):
     required=False,
 )
 @click.pass_context
-@chain
 @configfile
+@chain
 def update(ctx, assets):
     feed = Feed(config=ctx.config)
     feed.fetch()

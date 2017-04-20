@@ -40,10 +40,10 @@ class Feed(object):
         # Do not reset feeds here!
         self.price = {}
         self.volume = {}
-        for base in self.config["all_assets"]:
+        for base in self.config["assets"]:
             self.price[base] = {}
             self.volume[base] = {}
-            for quote in self.config["all_assets"]:
+            for quote in self.config["assets"]:
                 self.price[base][quote] = []
                 self.volume[base][quote] = []
 
@@ -61,7 +61,7 @@ class Feed(object):
         asset = Asset(symbol, full=True)
         price = self.price_result.get(symbol, None)
         if not price:
-            raise ValueError("Price has not yet been derived")
+            raise ValueError("Price for %s has not yet been derived" % symbol)
         newPrice = price["price"]
         # get my current feed
         current_feed = self.get_my_current_feed(asset)
@@ -122,8 +122,9 @@ class Feed(object):
         """ Obtain the configuration for an asset, if not present, use default
         """
         if (
-            symbol in self.config["assets"] and parameter in
-            self.config["assets"][symbol]
+            symbol in self.config["assets"] and
+            self.config["assets"][symbol] and
+            parameter in self.config["assets"][symbol]
         ):
             return self.config["assets"][symbol][parameter]
         else:
@@ -186,41 +187,36 @@ class Feed(object):
                             float(self.feed[datasource][base][quote]["volume"] * self.feed[datasource][base][quote]["price"])
                         )
 
-    def derive2Markets(self, asset):
+    def derive2Markets(self, asset, target_symbol):
         """ derive BTS prices for all assets in assets_derive
             This loop adds prices going via 2 markets:
             E.g.: CNY:BTC -> BTC:BTS = CNY:BTS
             I.e.: BTS: interasset -> interasset: targetasset
         """
         symbol = asset["symbol"]
-        backing_symbol = asset["short_backing_asset"]["symbol"]
 
-        if "intermediate_assets" not in self.config or not self.config["intermediate_assets"]:
-            return
-
-        for interasset in self.config["intermediate_assets"]:
+        for interasset in self.config.get("intermediate_assets", []):
             if interasset == symbol:
                 continue
             for ratio in self.price[symbol][interasset]:
-                if interasset in self.price and backing_symbol in self.price[interasset]:
-                    for idx in range(0, len(self.price[interasset][backing_symbol])):
-                        if self.volume[interasset][backing_symbol][idx] == 0:
+                if interasset in self.price and target_symbol in self.price[interasset]:
+                    for idx in range(0, len(self.price[interasset][target_symbol])):
+                        if self.volume[interasset][target_symbol][idx] == 0:
                             continue
                         self.addPrice(
                             symbol,
-                            backing_symbol,
-                            float(self.price[interasset][backing_symbol][idx] * ratio),
-                            float(self.volume[interasset][backing_symbol][idx] * ratio),
+                            target_symbol,
+                            float(self.price[interasset][target_symbol][idx] * ratio),
+                            float(self.volume[interasset][target_symbol][idx] * ratio),
                         )
 
-    def derive3Markets(self, asset):
+    def derive3Markets(self, asset, target_symbol):
         """ derive BTS prices for all assets in assets_derive
             This loop adds prices going via 3 markets:
             E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
             I.e.: BTS: interassetA -> interassetA: interassetB -> symbol: interassetB
         """
         symbol = asset["symbol"]
-        backing_symbol = asset["short_backing_asset"]["symbol"]
 
         if "intermediate_assets" not in self.config or not self.config["intermediate_assets"]:
             return
@@ -237,14 +233,14 @@ class Feed(object):
 
                     for ratioA in self.price[interassetB][interassetA]:
                         for ratioB in self.price[symbol][interassetB]:
-                            for idx in range(0, len(self.price[interassetA][backing_symbol])):
-                                if self.volume[interassetA][backing_symbol][idx] == 0:
+                            for idx in range(0, len(self.price[interassetA][target_symbol])):
+                                if self.volume[interassetA][target_symbol][idx] == 0:
                                     continue
                                 self.addPrice(
                                     symbol,
-                                    backing_symbol,
-                                    float(self.price[interassetA][backing_symbol][idx] * ratioA * ratioB),
-                                    float(self.volume[interassetA][backing_symbol][idx] * ratioA * ratioB)
+                                    target_symbol,
+                                    float(self.price[interassetA][target_symbol][idx] * ratioA * ratioB),
+                                    float(self.volume[interassetA][target_symbol][idx] * ratioA * ratioB)
                                 )
 
     def type_extern(self, symbol):
@@ -252,24 +248,32 @@ class Feed(object):
             exchanges to the internal state and processing through markets
         """
         asset = Asset(symbol, full=True)
+        if not asset.is_bitasset:
+            return
         short_backing_asset = Asset(asset["bitasset_data"]["options"]["short_backing_asset"])
         backing_symbol = short_backing_asset["symbol"]
         asset["short_backing_asset"] = short_backing_asset
 
-        if self.assetconf(symbol, "type") == "extern":
-            self.reset()
-            self.appendOriginalPrices()
-            self.derive2Markets(asset)
-            self.derive3Markets(asset)
-        else:
+        if self.assetconf(symbol, "type") not in ["extern", "alias"]:
             return
 
-        assetvolume = [v for v in self.volume[symbol][backing_symbol]]
-        assetprice = [p for p in self.price[symbol][backing_symbol]]
+        if self.assetconf(symbol, "type") == "alias":
+            alias = self.assetconf(symbol, "alias")
+            asset = Asset(alias, full=True)
+        else:
+            alias = symbol
+
+        self.reset()
+        self.appendOriginalPrices()
+        self.derive2Markets(asset, backing_symbol)
+        self.derive3Markets(asset, backing_symbol)
+
+        assetvolume = [v for v in self.volume[alias][backing_symbol]]
+        assetprice = [p for p in self.price[alias][backing_symbol]]
 
         if len(assetvolume) > 1:
-            price_median = statistics.median(self.price[symbol][backing_symbol])
-            price_mean = statistics.mean(self.price[symbol][backing_symbol])
+            price_median = statistics.median(self.price[alias][backing_symbol])
+            price_mean = statistics.mean(self.price[alias][backing_symbol])
             price_weighted = num.average(assetprice, weights=assetvolume)
             price_std = weighted_std(assetprice, assetvolume)
         elif len(assetvolume) == 1:
@@ -316,21 +320,21 @@ class Feed(object):
         backing_symbol = short_backing_asset["symbol"]
         asset["short_backing_asset"] = short_backing_asset
 
-        if self.assetconf(symbol, "type") == "formula":
-            if self.assetconf(symbol, "reference") == "extern":
-                price = eval(
-                    self.assetconf(symbol, "formula").format(
-                        **self.price_result))
-            elif self.assetconf(symbol, "reference") == "intern":
-                ref_asset = self.assetconf(symbol, "ref_asset")
-                market = Market("%s:%s" % (ref_asset, backing_symbol))
-                ticker = {k: float(v) for k, v in market.ticker().items()}
-                price = eval(
-                    self.assetconf(symbol, "formula").format(**ticker))
-            else:
-                raise ValueError("Missing 'reference' for asset %s" % symbol)
-        else:
+        if self.assetconf(symbol, "type") != "formula":
             return
+
+        if self.assetconf(symbol, "reference") == "extern":
+            price = eval(
+                self.assetconf(symbol, "formula").format(
+                    **self.price_result))
+        elif self.assetconf(symbol, "reference") == "intern":
+            ref_asset = self.assetconf(symbol, "ref_asset")
+            market = Market("%s:%s" % (ref_asset, backing_symbol))
+            ticker = {k: float(v) for k, v in market.ticker().items()}
+            price = eval(
+                self.assetconf(symbol, "formula").format(**ticker))
+        else:
+            raise ValueError("Missing 'reference' for asset %s" % symbol)
 
         self.price_result[symbol] = {
             "price": price,
@@ -352,26 +356,23 @@ class Feed(object):
         # Manage default assets to publish
         assets_derive = set(assets_derive)
         if not assets_derive:
-            assets_derive = set(self.config["all_assets"])
+            assets_derive = set(self.config["assets"])
 
         # create returning dictionary
         self.price_result = {}
         for symbol in assets_derive:
             self.price_result[symbol] = {}
 
-        # secondary assets requirements
-        for asset_setting in self.config["assets"].values():
-            if "base" in asset_setting:
-                assets_derive.add(asset_setting["base"])
-
         # Derive 'external' price feed
         for symbol in assets_derive:
             self.type_extern(symbol)
 
-        # Formula feeds and tests
+        # Formula feeds
         for symbol in assets_derive:
             self.type_intern(symbol)
 
+        # tests
+        for symbol in assets_derive:
             self.obtain_price_change(symbol)
             self.obtain_flags(symbol)
 

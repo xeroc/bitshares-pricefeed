@@ -272,13 +272,6 @@ assets:
             - huobi
             - btcchina
             - okcoin
-#    HERO:
-#        type: formula
-#        # reference
-#        reference: intern 
-#        ref_asset: USD
-#        formula: 100 * {quoteSettlement_price}
-
     TUSD:
         base: USD
         scale: 1

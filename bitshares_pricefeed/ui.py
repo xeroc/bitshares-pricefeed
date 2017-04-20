@@ -49,6 +49,7 @@ def chain(f):
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         ctx.bitshares = BitShares(
+            ctx.config["node"],
             bundle=True,   # We bundle many feeds into a single tx
             **ctx.obj
         )
@@ -92,7 +93,7 @@ def priceChange(new, old):
 
 
 def formatPrice(f):
-    return click.style("%f.10" % f, fg="yellow")
+    return click.style("%.10f" % f, fg="yellow")
 
 
 def formatStd(f):
@@ -114,8 +115,12 @@ def print_prices(feeds):
     for symbol, feed in feeds.items():
         myprice = feed["price"]
         blockchain = float(Price(feed["global_feed"]["settlement_price"]))
-        last = float(feed["current_feed"]["settlement_price"])
-        age = (str(datetime.utcnow() - feed["current_feed"]["date"]))
+        if "current_feed" in feed and feed["current_feed"]:
+            last = float(feed["current_feed"]["settlement_price"])
+            age = (str(datetime.utcnow() - feed["current_feed"]["date"]))
+        else:
+            last = -1.0
+            age = "unknown"
         # Get Final Price according to price metric
         t.add_row([
             symbol,
