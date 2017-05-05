@@ -288,25 +288,6 @@ assets:
         base: USD
         scale: 1
 
-all_assets:
-    - AUD
-    - BTC
-    - CAD
-    - CHF
-    - CNY
-    - EUR
-    - GBP
-    - GOLD
-    - HKD
-    - JPY
-    - KRW
-    - MXN
-    - NZD
-    - SGD
-    - SILVER
-    - TRY
-    - USD
-
 intermediate_assets:
     - CNY
     - USD

@@ -43,13 +43,17 @@ def main(ctx, **kwargs):
 
 
 @main.command()
+@click.argument(
+    "example",
+    default="default"
+)
 @click.pass_context
-def create(ctx):
-    """ Create default config file
+def create(ctx, example):
+    """ Create config file
     """
     import shutil
     this_dir, this_filename = os.path.split(__file__)
-    default_config_file = os.path.join(this_dir, "config-example.yaml")
+    default_config_file = os.path.join(this_dir, "examples", example + ".yaml")
     config_file = ctx.obj["configfile"]
     shutil.copyfile(
         default_config_file,
@@ -69,6 +73,8 @@ def create(ctx):
 @chain
 @unlock
 def update(ctx, assets):
+    """ Update price feed for assets
+    """
     feed = Feed(config=ctx.config)
     feed.fetch()
     feed.derive(assets)
@@ -89,19 +95,28 @@ def update(ctx, assets):
             "skip_change" not in flags
         ):
             if not confirmwarning(
-                "Price change for %s has been above 'warn_change'. Please confirm!" % symbol
+                "Price change for %s (%f) has been above 'warn_change'.  Please confirm!" % (
+                    symbol,
+                    price["priceChange"]
+                )
             ):
                 continue
 
         if "skip_change" in flags:
             if ctx.obj["skip_critical"]:
                 alert(
-                    "Price change for %s has been above 'skip_change'. Skipping!" % symbol
+                    "Price change for %s (%f) has been above 'skip_change'.  Skipping!" % (
+                        symbol,
+                        price["priceChange"],
+                    )
                 )
                 continue
             else:
                 if not confirmalert(
-                    "Price change for %s has been above 'skip_change'. Please confirm to still publish, else feed will be skipped!" % symbol
+                    "Price change for %s (%f) has been above 'skip_change'. Please confirm to still publish, else feed will be skipped!" % (
+                        symbol,
+                        price["priceChange"],
+                    )
                 ):
                     continue
 
@@ -116,8 +131,15 @@ def update(ctx, assets):
             account=ctx.config["producer"]
         )
 
-    # ctx.bitshares.txbuffer.constructTx()
-    # pprint(ctx.bitshares.txbuffer.json())
+    # Always ask for confirmation if this flag is set to true
+    if "confirm" in ctx.config and ctx.config["confirm"]:
+        ctx.bitshares.txbuffer.constructTx()
+        pprint(ctx.bitshares.txbuffer.json())
+        if not confirmwarning(
+            "Please confirm"
+        ):
+            return
+
     if ctx.bitshares.txbuffer.ops:
         ctx.bitshares.txbuffer.broadcast()
 

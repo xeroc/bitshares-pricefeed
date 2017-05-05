@@ -6,7 +6,7 @@ from bitshares.account import Account
 from bitshares.asset import Asset
 from bitshares.market import Market
 from concurrent import futures
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from . import sources
 
 
@@ -128,6 +128,17 @@ class Feed(object):
         ):
             return self.config["assets"][symbol][parameter]
         else:
+            if "default" not in self.config:
+                raise ValueError("%s for %s not defined!" % (
+                    parameter,
+                    symbol
+                ))
+            if parameter not in self.config["default"]:
+                raise ValueError("%s for %s not defined!" % (
+                    parameter,
+                    symbol
+                ))
+
             return self.config["default"][parameter]
 
     def addPrice(self, base, quote, price, volume):
