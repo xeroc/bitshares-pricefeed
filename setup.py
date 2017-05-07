@@ -3,7 +3,7 @@
 from setuptools import setup
 import sys
 
-__VERSION__ = '0.0.2'
+__VERSION__ = '0.0.3'
 
 assert sys.version_info[0] == 3, "BitShares-PriceFeed requires Python > 3"
 
@@ -33,7 +33,7 @@ setup(
         ],
     },
     install_requires=[
-        "bitshares>=0.1.5",
+        "bitshares>=0.1.6",
         "prettytable",
         "click",
         "colorama",
