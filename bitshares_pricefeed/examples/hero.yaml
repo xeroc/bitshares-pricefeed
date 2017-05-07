@@ -38,7 +38,7 @@ assets:
         # * rounded to 2 decimals
         # * relative to the USD price feed in BitShares
         #####################################
-        formula: round(1.05 ** ((date.today() - date(1913, 12, 23)).days / 365.2425), 2) * {quoteSettlement_price}
+        formula: 1.05 ** ((date.today() - date(1913, 12, 23)).days / 365.2425) / {quoteSettlement_price}
 
         # Maximum short squeeze ratio
         maximum_short_squeeze_ratio: 110.0
