@@ -187,6 +187,16 @@ exchanges:
         base:
             # Only USD with free subscription
             - USD
+    ChBTC:
+        klass: ChBTC
+        enable: True
+        allowFailure: True
+        quotes:
+            - BTS
+            - BTC
+        bases:
+            - CNY
+            - BTC
         
 # default settings
 default:
