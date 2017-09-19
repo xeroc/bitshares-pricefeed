@@ -52,7 +52,7 @@ class Feed(object):
         """
         feeds = asset.feeds
         for feed in feeds:
-            if feed["witness"].witness == self.producer["id"]:
+            if feed["producer"]["id"] == self.producer["id"]:
                 return feed
 
     def obtain_price_change(self, symbol):

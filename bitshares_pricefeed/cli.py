@@ -6,10 +6,12 @@ import logging
 from pprint import pprint
 from bitshares.price import Price
 from .pricefeed import Feed
-from .ui import (
+from uptick.decorators import (
     verbose,
     chain,
     unlock,
+)
+from .ui import (
     configfile,
     print_prices,
     confirmwarning,
