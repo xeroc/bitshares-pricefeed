@@ -34,6 +34,7 @@ setup(
     },
     install_requires=[
         "bitshares>=0.1.6",
+        "uptick",
         "prettytable",
         "click",
         "colorama",
