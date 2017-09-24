@@ -1,5 +1,14 @@
 # Price Feed Script for BitShares
 
+## Requirements
+
+Python3
+Pip3
+pip3 install wheel
+pip3 install systemtools
+pip3 install numpy
+libssl-dev
+
 ## Installation
 
 ```
