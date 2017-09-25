@@ -3,7 +3,6 @@
 import click
 import os
 import logging
-import math
 from pprint import pprint
 from bitshares.price import Price
 from .pricefeed import Feed
