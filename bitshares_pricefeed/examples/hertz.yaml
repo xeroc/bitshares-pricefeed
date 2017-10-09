@@ -2,7 +2,7 @@
 node: wss://node.bitshares.eu
 
 # The producer name(s)
-producer: customminer
+producer: username
 
 assets:
     HERTZ:
@@ -10,13 +10,13 @@ assets:
         maxage: 43200
 
         # minimum percentage that forces a publish
-        min_change: 0.25
+        min_change: 0.5
 
         # warn if price change goes above this percentage
-        warn_change: 1.5
+        warn_change: 5
 
         # skip publishing a feed if price goes above this percentage
-        skip_change: 3
+        skip_change: 25
 
         # Basic Price setup
         ###################
@@ -41,13 +41,13 @@ assets:
         # New HERTZ assets could be created with different periods, amplitudes and wave formulas. Increasing the period and reducing the amplitude would make a more stable HERTZ ABA, where as decreasing the period and increasing the amplitude would result in a more volatile HERTZ ABA.
         #####################################
 
-        formula: ({quoteSettlement_price}) + (({quoteSettlement_price} * 0.5) * sin(((((time.time() - 1444745544)/2629746) % 1) * 2629746) * ((2*pi)/2629746)))
+        formula: ({quoteSettlement_price}) + (({quoteSettlement_price} * (1/3)) * sin(((((time.time() - 1444824000.0384)/2419200) % 1) * 2419200) * ((2*pi)/2419200)))
 
         # Maximum short squeeze ratio
         maximum_short_squeeze_ratio: 110.0
 
         # maintenance collateral ratio (percentage)
-        maintenance_collateral_ratio: 175.0
+        maintenance_collateral_ratio: 200.0
 
         # Core exchange factor for paying transaction fees in
         # non-BTS assets. Premium of 5%
