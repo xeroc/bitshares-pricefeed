@@ -41,7 +41,7 @@ assets:
         # New HERTZ assets could be created with different periods, amplitudes and wave formulas. Increasing the period and reducing the amplitude would make a more stable HERTZ ABA, where as decreasing the period and increasing the amplitude would result in a more volatile HERTZ ABA.
         #####################################
 
-        formula: ({quoteSettlement_price}) + (({quoteSettlement_price} * (1/3)) * sin(((((time.time() - 1444824000.0384)/2419200) % 1) * 2419200) * ((2*pi)/2419200)))
+        formula: ({quoteSettlement_price}) + (({quoteSettlement_price} * (0.14)) * sin(((((time.time() - 1444824000.0384)/2419200) % 1) * 2419200) * ((2*pi)/2419200)))
 
         # Maximum short squeeze ratio
         maximum_short_squeeze_ratio: 110.0
