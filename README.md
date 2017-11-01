@@ -38,6 +38,25 @@ Add to cron, where PASSWD is your Wallet Encryption Passphrase
 UNLOCK="PASSWD" bitshares-pricefeed update
 ```
 
+## Help
+
+```
+# bitshares-pricefeed --help
+Usage: bitshares-pricefeed [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --configfile TEXT
+  --confirm-warning / --no-confirm-warning
+                                  Need for manual confirmation of warnings
+  --skip-critical / --no-skip-critical
+                                  Skip critical feeds
+  --help                          Show this message and exit.
+
+Commands:
+  create  Create config file
+  update  Update price feed for assets
+```
+
 # IMPORTANT NOTE
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
