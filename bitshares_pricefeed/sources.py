@@ -266,6 +266,7 @@ class Yahoo(FeedSource):
         return feed
 
 
+# Need to add support for injecting public and secret key
 class BitcoinAverage(FeedSource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -273,6 +274,8 @@ class BitcoinAverage(FeedSource):
     def _fetch(self):
         feed = {}
         url = "https://api.bitcoinaverage.com/ticker/"
+        public_key = ""
+        secret_keu = ""
         try:
             for base in self.bases:
                 feed[base] = {}

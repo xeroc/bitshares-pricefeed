@@ -11,7 +11,7 @@ producer: in.abit
 exchanges:
     yahoo:
         klass: Yahoo
-        enable: True
+        enable: False
         quotes:
             - TRY
             - SGD
@@ -35,7 +35,7 @@ exchanges:
             - HKD
     google:
         klass: Google
-        enable: True
+        enable: False
         quotes:
             - TRY
             - SGD
@@ -57,9 +57,19 @@ exchanges:
             - CNY
             - JPY
             - HKD
+    bitstamp:
+        klass: Bitstamp
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
     btcavg:
         klass: BitcoinAverage
-        enable: True
+        secret_key:
+        public_key:
+        enable: False
         quotes:
             - BTC
         bases:
@@ -82,8 +92,7 @@ exchanges:
             - BTC
     yunbi:
         klass: Yunbi
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTS
             - BTC
@@ -91,8 +100,7 @@ exchanges:
             - CNY
     btc38:
         klass: Btc38
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTS
             - BTC
@@ -101,8 +109,7 @@ exchanges:
             - BTC
     btcchina:
         klass: BtcChina
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTC
         bases:
@@ -110,7 +117,6 @@ exchanges:
     okcoin:
         klass: Okcoin
         enable: True
-        allowFailure: True
         quotes:
             - BTC
         bases:
@@ -118,8 +124,7 @@ exchanges:
             - USD
     huobi:
         klass: Huobi 
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTC
         bases:
@@ -138,7 +143,6 @@ exchanges:
         klass: Graphene
         enable: True
         url: wss://bitshares.openledger.info/ws
-        allowFailure: True
         quotes:
             - USD
             - CNY
@@ -147,24 +151,41 @@ exchanges:
     coinmarketcap:
         klass: Coinmarketcap
         enable: True
-        allowFailure: True
+        quotes:
+            - BTC
+            - BTS
+        bases:
+            - BTC
+            - USD
     fixer:
         klass: Fixer
         enable: True
         quotes:
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+        bases:
+            - USD
             - EUR
             - CNY
-            - USD
-        base:
-            - EUR
-            - USD
-            - CNY
+            - JPY
+            - HKD
     openexchangerates:
         klass: OpenExchangeRates
         enable: True
         api_key: 
         free_subscription: True
-        allowFailure: True
         quotes:
             - ARS
             - BTC
@@ -178,7 +199,6 @@ exchanges:
         enable: True
         api_key: 
         free_subscription: True
-        allowFailure: True
         quotes:
             - ARS
             - BTC
@@ -189,8 +209,7 @@ exchanges:
             - USD
     ChBTC:
         klass: ChBTC
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTS
             - BTC
@@ -262,8 +281,8 @@ default:
         - poloniex
         - bittrex
         - btc38
-        - yunbi
         - bitshares
+        - bitstamp
 
     # Core exchange factor for paying transaction fees in
     # non-BTS assets. Premium of 5%
@@ -281,27 +300,12 @@ default:
     derive_across_3markets: False
 
 assets:
-    BTC:
-        source:
-            - poloniex
-            - bittrex
-            - btc38
-            - yunbi
+    USD:
     CNY:
-        sources:
-            - btc38
-            - yunbi
-            - huobi
-            - btcchina
-            - okcoin
-    TUSD:
-        base: USD
-        scale: 1
+    BTC:
 
 intermediate_assets:
     - CNY
     - USD
-    - BTC
     - EUR
-    - HKD
-    - JPY
+    - BTC
