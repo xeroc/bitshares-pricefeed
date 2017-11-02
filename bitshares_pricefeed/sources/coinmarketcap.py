@@ -1,0 +1,43 @@
+import csv
+import json
+import requests
+from . import FeedSource, _request_headers
+
+
+class Coinmarketcap(FeedSource):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _fetch(self):
+        feed = {}
+        base = self.bases[0]
+        if base == 'BTC':
+            feed[base] = {}
+            try:
+                ticker = requests.get('https://api.coinmarketcap.com/v1/ticker/').json()
+
+                global_data = requests.get('https://api.coinmarketcap.com/v1/global/').json()
+                bitcoin_data = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/').json()[0]
+                alt_caps_x = [float(coin['market_cap_usd'])
+                              for coin in ticker if
+                              float(coin['rank']) <= 11 and
+                              coin['symbol'] != "BTC"
+                              ]
+                alt_cap = (
+                    float(global_data['total_market_cap_usd']) -
+                    float(bitcoin_data['market_cap_usd']))
+                alt_cap_x = sum(alt_caps_x)
+                btc_cap = next((coin['market_cap_usd'] for coin in ticker if coin["symbol"] == "BTC"))
+
+                btc_altcap_price = float(alt_cap) / float(btc_cap)
+                btc_altcapx_price = float(alt_cap_x) / float(btc_cap)
+
+                if 'ALTCAP' in self.quotes:
+                    feed[base]['ALTCAP'] = {"price": btc_altcap_price,
+                                            "volume": 1.0}
+                if 'ALTCAP.X' in self.quotes:
+                    feed[base]['ALTCAP.X'] = {"price": btc_altcapx_price,
+                                              "volume": 1.0}
+            except Exception as e:
+                raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
+        return feed
