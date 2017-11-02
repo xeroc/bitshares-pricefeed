@@ -80,15 +80,6 @@ exchanges:
             - BTS
         bases:
             - BTC
-    yunbi:
-        klass: Yunbi
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTS
-            - BTC
-        bases:
-            - CNY
     btc38:
         klass: Btc38
         enable: True
@@ -256,13 +247,9 @@ default:
     #              - loaded exchanges (see below)
     sources:
         - btcavg
-        - yahoo
         - quandl
-        - google
         - poloniex
         - bittrex
-        - btc38
-        - yunbi
         - bitshares
 
     # Core exchange factor for paying transaction fees in
@@ -286,11 +273,9 @@ assets:
             - poloniex
             - bittrex
             - btc38
-            - yunbi
     CNY:
         sources:
             - btc38
-            - yunbi
             - huobi
             - btcchina
             - okcoin
