@@ -246,7 +246,7 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        - btcavg
+        # - btcavg
         - quandl
         - poloniex
         - bittrex
