@@ -4,12 +4,21 @@
 
 Ubuntu 16.04 LTS
 
+Start the installation
+
 ```
 cd ~
-sudo apt install python3-pip
-pip3 install --upgrade pip
-pip3 install bitshares-pricefeed
+pip3 install bitshares-pricefeed --user
+```
+
+Create config.yml
+```
 bitshares-pricefeed create
+```
+
+Enter Credentials
+
+```
 uptick addkey
 ```
 

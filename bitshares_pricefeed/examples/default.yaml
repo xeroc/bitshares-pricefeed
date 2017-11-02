@@ -11,7 +11,7 @@ producer: in.abit
 exchanges:
     yahoo:
         klass: Yahoo
-        enable: True
+        enable: False
         quotes:
             - TRY
             - SGD
@@ -35,6 +35,130 @@ exchanges:
             - HKD
     google:
         klass: Google
+        enable: False
+        quotes:
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+        bases:
+            - USD
+            - EUR
+            - CNY
+            - JPY
+            - HKD
+    bitstamp:
+        klass: Bitstamp
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
+    btcavg:
+        klass: BitcoinAverage
+        secret_key:
+        public_key:
+        enable: False
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
+            - CNY
+    poloniex:
+        klass: Poloniex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bittrex:
+        klass: Bittrex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    yunbi:
+        klass: Yunbi
+        enable: False
+        quotes:
+            - BTS
+            - BTC
+        bases:
+            - CNY
+    btc38:
+        klass: Btc38
+        enable: False
+        quotes:
+            - BTS
+            - BTC
+        bases:
+            - CNY
+            - BTC
+    btcchina:
+        klass: BtcChina
+        enable: False
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    okcoin:
+        klass: Okcoin
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+            - USD
+    huobi:
+        klass: Huobi 
+        enable: False
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    quandl:
+        klass: Quandl 
+        enable: True
+        datasets:
+            "GOLD:USD": 
+                - LBMA/GOLD
+                - PERTH/GOLD_USD_D
+            "SILVER:USD":
+                - LBMA/SILVER
+                - PERTH/SLVR_USD_D
+    bitshares:
+        klass: Graphene
+        enable: True
+        url: wss://bitshares.openledger.info/ws
+        quotes:
+            - USD
+            - CNY
+        bases:
+            - BTS
+    coinmarketcap:
+        klass: Coinmarketcap
+        enable: True
+        quotes:
+            - BTC
+            - BTS
+        bases:
+            - BTC
+            - USD
+    fixer:
+        klass: Fixer
         enable: True
         quotes:
             - TRY
@@ -57,105 +181,11 @@ exchanges:
             - CNY
             - JPY
             - HKD
-    btcavg:
-        klass: BitcoinAverage
-        enable: True
-        quotes:
-            - BTC
-        bases:
-            - USD
-            - EUR
-            - CNY
-    poloniex:
-        klass: Poloniex
-        enable: True
-        quotes:
-            - BTS
-        bases:
-            - BTC
-    bittrex:
-        klass: Bittrex
-        enable: True
-        quotes:
-            - BTS
-        bases:
-            - BTC
-    btc38:
-        klass: Btc38
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTS
-            - BTC
-        bases:
-            - CNY
-            - BTC
-    btcchina:
-        klass: BtcChina
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-    okcoin:
-        klass: Okcoin
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-            - USD
-    huobi:
-        klass: Huobi 
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-    quandl:
-        klass: Quandl 
-        enable: True
-        datasets:
-            "GOLD:USD": 
-                - LBMA/GOLD
-                - PERTH/GOLD_USD_D
-            "SILVER:USD":
-                - LBMA/SILVER
-                - PERTH/SLVR_USD_D
-    bitshares:
-        klass: Graphene
-        enable: True
-        url: wss://bitshares.openledger.info/ws
-        allowFailure: True
-        quotes:
-            - USD
-            - CNY
-        bases:
-            - BTS
-    coinmarketcap:
-        klass: Coinmarketcap
-        enable: True
-        allowFailure: True
-    fixer:
-        klass: Fixer
-        enable: True
-        quotes:
-            - EUR
-            - CNY
-            - USD
-        base:
-            - EUR
-            - USD
-            - CNY
     openexchangerates:
         klass: OpenExchangeRates
         enable: True
         api_key: 
         free_subscription: True
-        allowFailure: True
         quotes:
             - ARS
             - BTC
@@ -169,7 +199,6 @@ exchanges:
         enable: True
         api_key: 
         free_subscription: True
-        allowFailure: True
         quotes:
             - ARS
             - BTC
@@ -180,8 +209,7 @@ exchanges:
             - USD
     ChBTC:
         klass: ChBTC
-        enable: True
-        allowFailure: True
+        enable: False
         quotes:
             - BTS
             - BTC
@@ -246,11 +274,15 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        # - btcavg
+        - btcavg
+        - yahoo
         - quandl
+        - google
         - poloniex
         - bittrex
+        - btc38
         - bitshares
+        - bitstamp
 
     # Core exchange factor for paying transaction fees in
     # non-BTS assets. Premium of 5%
@@ -268,25 +300,12 @@ default:
     derive_across_3markets: False
 
 assets:
-    BTC:
-        source:
-            - poloniex
-            - bittrex
-            # - btc38
+    USD:
     CNY:
-        sources:
-            # - btc38
-            # - huobi
-            - btcchina
-            - okcoin
-    TUSD:
-        base: USD
-        scale: 1
+    BTC:
 
 intermediate_assets:
     - CNY
     - USD
-    - BTC
     - EUR
-    - HKD
-    - JPY
+    - BTC
