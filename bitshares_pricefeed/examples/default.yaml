@@ -272,11 +272,11 @@ assets:
         source:
             - poloniex
             - bittrex
-            - btc38
+            # - btc38
     CNY:
         sources:
-            - btc38
-            - huobi
+            # - btc38
+            # - huobi
             - btcchina
             - okcoin
     TUSD:
