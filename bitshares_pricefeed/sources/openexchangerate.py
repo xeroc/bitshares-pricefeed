@@ -30,6 +30,8 @@ class OpenExchangeRates(FeedSource):  # Hourly updated data with free subscripti
                     for quote in self.quotes:
                         if quote == base:
                             continue
+                        if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                            quote = self.quoteNames[quote]
                         feed[base][quote] = {"price": result["rates"][quote],
                                              "volume": 1.0}
         except Exception as e:

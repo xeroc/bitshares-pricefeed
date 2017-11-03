@@ -8,7 +8,7 @@ class CurrencyLayer(FeedSource):  # Hourly updated data over http with free subs
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not hasattr(self, "api_key") or not hasattr(self, "free_subscription"):
-            raise Exception("OpenExchangeRates FeedSource requires 'api_key' and 'free_subscription'")
+            raise Exception("CurrencyLayer FeedSource requires 'api_key' and 'free_subscription'")
 
     def _fetch(self):
         feed = {}
@@ -29,8 +29,13 @@ class CurrencyLayer(FeedSource):  # Hourly updated data over http with free subs
                     for quote in self.quotes:
                         if quote == base:
                             continue
-                        feed[base][quote] = {"price": result["quotes"][base + quote],
-                                             "volume": 1.0}
+                        if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                            quoteNew = self.quoteNames[quote]
+                        else:
+                            quoteNew = quote
+                        feed[base][quoteNew] = {
+                            "price": result["quotes"][base + quote],
+                            "volume": 1.0}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed

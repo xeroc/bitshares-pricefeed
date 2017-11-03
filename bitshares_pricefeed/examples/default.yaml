@@ -1,10 +1,26 @@
+# This is an example configuration file that might need modifications
+# to properly run in your environment
+#
+# API KEYS
+##########
+# Some services require you to obtain an API key and provide it here in
+# the configuration:
+#
+#     * OpenExchangeRates (has a free subscription)
+#     * Currencylayer (has a a free subscription)
+#     * Quandl (has a a free subscription)
+#     * BitcoinAverage (has a a free subscription)
+#     
+# The corresponding variables can be defined in the `exchanges` key.
+
+
 # If true, a new price feed needs manual confirmation
 confirm: True
 
 # The producer name(s)
-producer:
+producer: xeroc
 
-# Exchange settings
+# Exchange settings (Here, you may need to add API keys)
 exchanges:
 
     ####################################
@@ -14,28 +30,33 @@ exchanges:
         klass: Google
         enable: True
         quotes:
-           #- TRY
-           #- SGD
-           #- HKD
-           #- NZD
+            - ARS
+            - TRY
+            - SGD
+            - HKD
+            - NZD
             - CNY
-           #- MXN
+            - MXN
             - CAD
             - CHF
-           #- AUD
+            - AUD
             - GBP
-           #- JPY
+            - JPY
             - EUR
             - USD
             - KRW
+            - RUB
         bases:
             - USD
             - EUR
             - CNY
+              #quoteNames:
+              #RUB: RUBLE
     fixer:
         klass: Fixer
         enable: True
         quotes:
+            - ARS
             - EUR
             - USD
             - CNY
@@ -50,18 +71,22 @@ exchanges:
             - GBP
             - JPY
             - KRW
+            - RUB
         bases:
             - USD
             - EUR
             - CNY
             - JPY
             - HKD
+        quoteNames:
+         #RUB: RUBLE
     openexchangerates:
         klass: OpenExchangeRates
         enable: True
         api_key: 
         free_subscription: True
         quotes:
+            - ARS
             - EUR
             - USD
             - CNY
@@ -76,9 +101,12 @@ exchanges:
             - GBP
             - JPY
             - KRW
+            - RUB
         base:
             # Only USD with free subscription
             - USD
+        quoteNames:
+            RUB: RUBLE
     currencylayer:
         klass: CurrencyLayer
         enable: True
@@ -86,12 +114,26 @@ exchanges:
         free_subscription: True
         quotes:
             - ARS
-            - BTC
-            - EUR
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
             - JPY
+            - EUR
+            - USD
+            - KRW
+            - RUB
         base:
             # Only USD with free subscription
             - USD
+        quoteNames:
+            RUB: RUBLE
 
     ####################################
     # Commodities
@@ -99,13 +141,12 @@ exchanges:
     quandl:
         klass: Quandl 
         enable: True
+        api_key:
         datasets:
             "GOLD:USD": 
                 - LBMA/GOLD
-                - PERTH/GOLD_USD_D
             "SILVER:USD":
                 - LBMA/SILVER
-                - PERTH/SLVR_USD_D
 
     ####################################
     # Bitcoin Exchange Rates
@@ -120,8 +161,8 @@ exchanges:
             - EUR
     btcavg:
         klass: BitcoinAverage
-        secret_key: NTJlNDYxZDUxMDE3NDNhZDg2MGFjNDliODkzMmFhOWRlOTAzYTFkYWNmYTI0OWM0YTdiNDBmNDUyNmNkMzIyMg
-        public_key: ZjljNGJjZDI3ZDUyNDc2NmI2NjM0MjAyNmM4ZjFjN2Y
+        secret_key:
+        public_key:
         enable: True
         quotes:
             - BTC
@@ -289,18 +330,34 @@ default:
     # If set to True, prices are also derived via 3
     # markets instead of just two:
     # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
-    derive_across_3markets: False
+    derive_across_3markets: True
 
+
+# Enabled assets that are derived if no asset is provided via command
+# line
 assets:
     BTC:
     USD:
+    # SILVER:
+    #    derive_across_3markets: True
     CNY:
         sources:
             - huobi
             - okcoin
+    TRY:
+    RUBLE:
+    EUR:
+    AUD:
+    JPY:
+    CHF:
+    MXN:
+    GBP:
+    CAD:
 
+# Intermediate assets are useful for 2 and 3 market price derivation
+# E.g.: USD:BTC -> BTC:BTS = USD:BTS
+#       GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
 intermediate_assets:
     - CNY
     - USD
     - BTC
-    - EUR

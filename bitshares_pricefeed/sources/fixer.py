@@ -20,8 +20,13 @@ class Fixer(FeedSource):  # fixer.io daily updated data from European Central Ba
                 for quote in self.quotes:
                     if quote == base:
                         continue
-                    feed[base][quote] = {"price": 1.0 / float(result["rates"][quote]),
-                                         "volume": 1.0}
+                    if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                        quoteNew = self.quoteNames[quote]
+                    else:
+                        quoteNew = quote
+                    feed[base][quoteNew] = {
+                        "price": 1.0 / float(result["rates"][quote]),
+                        "volume": 1.0}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed

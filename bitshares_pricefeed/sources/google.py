@@ -37,6 +37,8 @@ class Google(FeedSource):  # Google Finance
                         if re.match('^[a\d]', row[0]):
                             prices.append(float(row[1]))
 
+                    if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                        quote = self.quoteNames[quote]
                     feed[base][quote] = {"price": sum(prices) / len(prices),
                                          "volume": 1.0}
         except Exception as e:
