@@ -18,7 +18,7 @@
 confirm: True
 
 # The producer name(s)
-producer: xeroc
+producer:
 
 # Exchange settings (Here, you may need to add API keys)
 exchanges:
@@ -50,13 +50,12 @@ exchanges:
             - USD
             - EUR
             - CNY
-              #quoteNames:
-              #RUB: RUBLE
+        quoteNames:
+            RUB: RUBLE
     fixer:
         klass: Fixer
         enable: True
         quotes:
-            - ARS
             - EUR
             - USD
             - CNY
@@ -79,7 +78,7 @@ exchanges:
             - JPY
             - HKD
         quoteNames:
-         #RUB: RUBLE
+            RUB: RUBLE
     openexchangerates:
         klass: OpenExchangeRates
         enable: True

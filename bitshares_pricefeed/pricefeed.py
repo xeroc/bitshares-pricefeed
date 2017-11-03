@@ -246,6 +246,11 @@ class Feed(object):
 
                     for ratioA in self.price[interassetB][interassetA]:
                         for ratioB in self.price[symbol][interassetB]:
+                            if (
+                                interassetA not in self.price or
+                                target_symbol not in self.price[interassetA]
+                            ):
+                                continue
                             for idx in range(0, len(self.price[interassetA][target_symbol])):
                                 if self.volume[interassetA][target_symbol][idx] == 0:
                                     continue
