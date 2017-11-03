@@ -16,6 +16,13 @@ Create config.yml
 bitshares-pricefeed create
 ```
 
+Add a feed producer name to the config.yml file just created
+```
+vim config.yml
+# The producer name(s)
+producer: your_witness_name
+```
+
 Enter Credentials
 
 ```
