@@ -1,42 +1,36 @@
-# The RPC API node
-node: wss://this.uptick.rocks
+# This is an example configuration file that might need modifications
+# to properly run in your environment
+#
+# API KEYS
+##########
+# Some services require you to obtain an API key and provide it here in
+# the configuration:
+#
+#     * OpenExchangeRates (has a free subscription)
+#     * Currencylayer (has a a free subscription)
+#     * Quandl (has a a free subscription)
+#     * BitcoinAverage (has a a free subscription)
+#     
+# The corresponding variables can be defined in the `exchanges` key.
+
 
 # If true, a new price feed needs manual confirmation
 confirm: True
 
 # The producer name(s)
-producer: in.abit
+producer:
 
-# Exchange settings
+# Exchange settings (Here, you may need to add API keys)
 exchanges:
-    yahoo:
-        klass: Yahoo
-        enable: True
-        quotes:
-            - TRY
-            - SGD
-            - HKD
-            - NZD
-            - CNY
-            - MXN
-            - CAD
-            - CHF
-            - AUD
-            - GBP
-            - JPY
-            - EUR
-            - USD
-            - KRW
-        bases:
-            - USD
-            - EUR
-            - CNY
-            - JPY
-            - HKD
+
+    ####################################
+    # Fiat Exchange Rates
+    ####################################
     google:
         klass: Google
         enable: True
         quotes:
+            - ARS
             - TRY
             - SGD
             - HKD
@@ -51,14 +45,123 @@ exchanges:
             - EUR
             - USD
             - KRW
+            - RUB
+        bases:
+            - USD
+            - EUR
+            - CNY
+        quoteNames:
+            RUB: RUBLE
+    fixer:
+        klass: Fixer
+        enable: True
+        quotes:
+            - EUR
+            - USD
+            - CNY
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - KRW
+            - RUB
         bases:
             - USD
             - EUR
             - CNY
             - JPY
             - HKD
+        quoteNames:
+            RUB: RUBLE
+    openexchangerates:
+        klass: OpenExchangeRates
+        enable: True
+        api_key: 
+        free_subscription: True
+        quotes:
+            - ARS
+            - EUR
+            - USD
+            - CNY
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - KRW
+            - RUB
+        base:
+            # Only USD with free subscription
+            - USD
+        quoteNames:
+            RUB: RUBLE
+    currencylayer:
+        klass: CurrencyLayer
+        enable: True
+        api_key: 
+        free_subscription: True
+        quotes:
+            - ARS
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+            - RUB
+        base:
+            # Only USD with free subscription
+            - USD
+        quoteNames:
+            RUB: RUBLE
+
+    ####################################
+    # Commodities
+    ####################################
+    quandl:
+        klass: Quandl 
+        enable: True
+        api_key:
+        datasets:
+            "GOLD:USD": 
+                - LBMA/GOLD
+            "SILVER:USD":
+                - LBMA/SILVER
+
+    ####################################
+    # Bitcoin Exchange Rates
+    ####################################
+    bitstamp:
+        klass: Bitstamp
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
     btcavg:
         klass: BitcoinAverage
+        secret_key:
+        public_key:
         enable: True
         quotes:
             - BTC
@@ -66,6 +169,31 @@ exchanges:
             - USD
             - EUR
             - CNY
+    btcchina:
+        klass: BtcChina
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+    okcoin:
+        klass: Okcoin
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+            - USD
+    huobi:
+        klass: Huobi 
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    ####################################
+    # Bitcoin Exchange Rates
+    ####################################
     poloniex:
         klass: Poloniex
         enable: True
@@ -80,65 +208,17 @@ exchanges:
             - BTS
         bases:
             - BTC
-    yunbi:
-        klass: Yunbi
+    zb:
+        klass: Zb
         enable: True
-        allowFailure: True
         quotes:
             - BTS
-            - BTC
         bases:
-            - CNY
-    btc38:
-        klass: Btc38
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTS
             - BTC
-        bases:
-            - CNY
-            - BTC
-    btcchina:
-        klass: BtcChina
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-    okcoin:
-        klass: Okcoin
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-            - USD
-    huobi:
-        klass: Huobi 
-        enable: True
-        allowFailure: True
-        quotes:
-            - BTC
-        bases:
-            - CNY
-    quandl:
-        klass: Quandl 
-        enable: True
-        datasets:
-            "GOLD:USD": 
-                - LBMA/GOLD
-                - PERTH/GOLD_USD_D
-            "SILVER:USD":
-                - LBMA/SILVER
-                - PERTH/SLVR_USD_D
     bitshares:
         klass: Graphene
         enable: True
         url: wss://bitshares.openledger.info/ws
-        allowFailure: True
         quotes:
             - USD
             - CNY
@@ -147,56 +227,19 @@ exchanges:
     coinmarketcap:
         klass: Coinmarketcap
         enable: True
-        allowFailure: True
-    fixer:
-        klass: Fixer
-        enable: True
         quotes:
-            - EUR
-            - CNY
-            - USD
-        base:
-            - EUR
-            - USD
-            - CNY
-    openexchangerates:
-        klass: OpenExchangeRates
-        enable: True
-        api_key: 
-        free_subscription: True
-        allowFailure: True
-        quotes:
-            - ARS
             - BTC
-            - EUR
-            - JPY
-        base:
-            # Only USD with free subscription
+            - BTS
+        bases:
             - USD
-    currencylayer:
-        klass: CurrencyLayer
+    aex:
+        klass: Aex
         enable: True
-        api_key: 
-        free_subscription: True
-        allowFailure: True
-        quotes:
-            - ARS
-            - BTC
-            - EUR
-            - JPY
-        base:
-            # Only USD with free subscription
-            - USD
-    ChBTC:
-        klass: ChBTC
-        enable: True
-        allowFailure: True
         quotes:
             - BTS
-            - BTC
         bases:
-            - CNY
             - BTC
+
         
 # default settings
 default:
@@ -255,14 +298,22 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        - btcavg
-        - yahoo
-        - quandl
         - google
+        - fixer
+        - openexchangerates
+        - currencylayer
+        - btcavg
+        - quandl
+        - bitstamp
+        - btcavg
+        - btcchina
+        - okcoin
+        - huobi
         - poloniex
         - bittrex
-        - btc38
-        - yunbi
+        - zb
+        - coinmarketcap
+        - aex
         - bitshares
 
     # Core exchange factor for paying transaction fees in
@@ -278,30 +329,35 @@ default:
     # If set to True, prices are also derived via 3
     # markets instead of just two:
     # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
-    derive_across_3markets: False
+    derive_across_3markets: True
 
+
+# Enabled assets that are derived if no asset is provided via command
+# line
 assets:
     BTC:
-        source:
-            - poloniex
-            - bittrex
-            - btc38
-            - yunbi
+    USD:
+    # SILVER:
+    #    derive_across_3markets: True
     CNY:
         sources:
-            - btc38
-            - yunbi
             - huobi
-            - btcchina
             - okcoin
-    TUSD:
-        base: USD
-        scale: 1
+    TRY:
+    RUBLE:
+    EUR:
+    AUD:
+    JPY:
+    CHF:
+    MXN:
+    GBP:
+    CAD:
+    ARS:
 
+# Intermediate assets are useful for 2 and 3 market price derivation
+# E.g.: USD:BTC -> BTC:BTS = USD:BTS
+#       GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
 intermediate_assets:
     - CNY
     - USD
     - BTC
-    - EUR
-    - HKD
-    - JPY

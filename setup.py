@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import sys
 
-__VERSION__ = '0.0.4'
+__VERSION__ = '0.0.5'
 
 assert sys.version_info[0] == 3, "BitShares-PriceFeed requires Python > 3"
 
@@ -19,7 +19,7 @@ setup(
     maintainer_email='Fabian@chainsquad.com',
     url='http://www.github.com/xeroc/bitshares-pricefeed',
     keywords=['bitshares', 'price', 'feed', 'cli'],
-    packages=['bitshares_pricefeed'],
+    packages=find_packages(),
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -39,7 +39,9 @@ setup(
         "click",
         "colorama",
         "tqdm",
-        "pyyaml"
+        "pyyaml",
+        "bitcoinaverage",
+        "quandl"
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
