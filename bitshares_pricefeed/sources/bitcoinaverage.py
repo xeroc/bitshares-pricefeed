@@ -1,14 +1,12 @@
-import csv
-import json
-import requests
-from . import FeedSource, _request_headers
-
+from . import FeedSource
 from bitcoinaverage import RestfulClient
 
 
 class BitcoinAverage(FeedSource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        assert hasattr(self, "secret_key"), "Bitcoinaverage needs 'secret_key'"
+        assert hasattr(self, "public_key"), "Bitcoinaverage needs 'public_key'"
         self.rest = RestfulClient(self.secret_key, self.public_key)
 
     def _fetch(self):
@@ -19,19 +17,17 @@ class BitcoinAverage(FeedSource):
                 for quote in self.quotes:
                     if quote == base:
                         continue
-                    response = self.rest.ticker_all_global(crypto='BTC', fiat='USD,EUR')
-                    print(response)
-                    response = requests.get(url=url.format(
-                        quote=quote,
-                        base=base
-                    ), headers=_request_headers, timeout=self.timeout)
-                    print(response.text)
-                    result = response.json()
-                    if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                    result = self.rest.ticker_global_per_symbol(
+                        quote.upper() + base.upper()
+                    )
+                    if (
+                        hasattr(self, "quoteNames") and
+                        quote in self.quoteNames
+                    ):
                         quote = self.quoteNames[quote]
-                    feed[base]["response"] = result
-                    feed[base][quote] = {"price": (float(result["last"])),
-                                         "volume": (float(result["total_vol"]))}
+                    feed[base][quote] = {
+                        "price": (float(result["last"])),
+                        "volume": (float(result["volume"]))}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed

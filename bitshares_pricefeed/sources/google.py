@@ -1,7 +1,9 @@
+import codecs
 import re
 import csv
 import json
 import requests
+import datetime
 from . import FeedSource, _request_headers
 
 
@@ -9,7 +11,7 @@ class Google(FeedSource):  # Google Finance
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.period = 60 * 60  # 1h
-        self.days = 1
+        self.days = 4
 
     def _fetch(self):
         feed = {}
@@ -28,7 +30,7 @@ class Google(FeedSource):  # Google Finance
                     ).format(ticker=ticker, period=self.period, days=self.days)
 
                     response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
-                    reader = csv.reader(response.text.splitlines())
+                    reader = csv.reader(codecs.iterdecode(response.content.splitlines(), "utf-8"))
 
                     prices = []
                     for row in reader:

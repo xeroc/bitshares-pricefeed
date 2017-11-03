@@ -10,12 +10,37 @@ class Coinmarketcap(FeedSource):
 
     def _fetch(self):
         feed = {}
+        try:
+            url = 'https://api.coinmarketcap.com/v1/ticker/'
+            response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
+            result = response.json()
+            base = self.bases[0]
+            if base == 'BTC':
+                feed[base] = {}
+                for quote in self.quotes:
+                    if quote == base:
+                        continue
+                    for r in result:
+                        if r["symbol"] == base.upper():
+                            feed["BTC"][quote] = {
+                                "price": (float(result["price_btc"])),
+                                "volume": (float(result["24h_volume_usd"]) / float(result["price_btc"]) * self.scaleVolumeBy)}
+                            feed["USD"][quote] = {
+                                "price": (float(result["price_usd"])),
+                                "volume": (float(result["24h_volume_usd"]) * self.scaleVolumeBy)}
+        except Exception as e:
+            raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
+        self._fetch_altcap()
+
+        return feed
+
+    def _fetch_altcap(self):
+        feed = {}
         base = self.bases[0]
         if base == 'BTC':
             feed[base] = {}
             try:
                 ticker = requests.get('https://api.coinmarketcap.com/v1/ticker/').json()
-
                 global_data = requests.get('https://api.coinmarketcap.com/v1/global/').json()
                 bitcoin_data = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/').json()[0]
                 alt_caps_x = [float(coin['market_cap_usd'])

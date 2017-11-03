@@ -23,3 +23,5 @@ from .quandl import Quandl
 from .yahoo import Yahoo
 from .yunbi import Yunbi
 from .bitstamp import Bitstamp
+from .aex import Aex
+from .zb import Zb
