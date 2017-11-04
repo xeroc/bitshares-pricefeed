@@ -118,6 +118,7 @@ class Feed(object):
             threads[name] = pool.submit(instance.fetch)
 
         for name in threads:
+            log.info("Checking name ...")
             self.feed[name] = threads[name].result()
 
     def assetconf(self, symbol, parameter):
