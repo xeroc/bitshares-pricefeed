@@ -352,7 +352,7 @@ assets:
     MXN:
     GBP:
     CAD:
-    ARS:
+    # ARS:
 
 # Intermediate assets are useful for 2 and 3 market price derivation
 # E.g.: USD:BTC -> BTC:BTS = USD:BTS
