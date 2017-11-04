@@ -129,8 +129,16 @@ def update(ctx, assets):
                 ):
                     continue
 
-        settlement_price = Price(price["price"], quote=symbol, base=price["short_backing_symbol"])
-        cer = Price(price["cer"], quote=symbol, base=price["short_backing_symbol"])
+        # Prices are denoted in `base`/`quote`. For a bitUSD feed, we
+        # want something like    0.05 USD per BTS. This makes "USD" the
+        # `base` and BTS the `quote`.
+        settlement_price = Price(
+                price["price"],
+                base=symbol,
+                quote=price["short_backing_symbol"])
+        cer = Price(price["cer"],
+                base=symbol,
+                quote=price["short_backing_symbol"])
         ctx.bitshares.publish_price_feed(
             symbol,
             settlement_price=settlement_price,
