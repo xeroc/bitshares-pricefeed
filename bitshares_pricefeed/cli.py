@@ -90,7 +90,7 @@ def update(ctx, assets):
     print_prices(prices)
 
     for symbol, price in prices.items():
-        asset = Asset(symbol, full=True, bitshares_instance=ctx.bitshares)
+        # asset = Asset(symbol, full=True, bitshares_instance=ctx.bitshares)
         flags = price["flags"]
 
         # Prices that don't move sufficiently, or are not too old, can
@@ -133,12 +133,13 @@ def update(ctx, assets):
         # want something like    0.05 USD per BTS. This makes "USD" the
         # `base` and BTS the `quote`.
         settlement_price = Price(
-                price["price"],
-                base=symbol,
-                quote=price["short_backing_symbol"])
-        cer = Price(price["cer"],
-                base=symbol,
-                quote=price["short_backing_symbol"])
+            price["price"],
+            base=symbol,
+            quote=price["short_backing_symbol"])
+        cer = Price(
+            price["cer"],
+            base=symbol,
+            quote=price["short_backing_symbol"])
         ctx.bitshares.publish_price_feed(
             symbol,
             settlement_price=settlement_price,
