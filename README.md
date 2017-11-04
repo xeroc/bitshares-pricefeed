@@ -51,7 +51,7 @@ bitshares-pricefeed update
 Add to cron, where PASSWD is your Wallet Encryption Passphrase
 
 ```
-UNLOCK="PASSWD" bitshares-pricefeed update
+UNLOCK="PASSWD" bitshares-pricefeed --no-confirm-warning update
 ```
 
 ## Help
