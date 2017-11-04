@@ -64,7 +64,7 @@ SHELL=/bin/bash
 PATH=/home/ubuntu/bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 UNLOCK="PASSWD"
 
-0,30 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
+0,30 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --no-confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
 ```
 
 ## Help
