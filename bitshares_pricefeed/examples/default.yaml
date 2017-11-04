@@ -171,7 +171,7 @@ exchanges:
             - CNY
     btcchina:
         klass: BtcChina
-        enable: True
+        enable: False
         quotes:
             - BTC
         bases:
@@ -186,7 +186,7 @@ exchanges:
             - USD
     huobi:
         klass: Huobi 
-        enable: True
+        enable: False
         quotes:
             - BTC
         bases:
@@ -306,9 +306,9 @@ default:
         - quandl
         - bitstamp
         - btcavg
-        - btcchina
+        # - btcchina
         - okcoin
-        - huobi
+        # - huobi
         - poloniex
         - bittrex
         - zb
