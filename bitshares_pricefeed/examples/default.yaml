@@ -187,67 +187,54 @@ exchanges:
     huobi:
         klass: Huobi 
         enable: True
-        enable: False
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    ####################################
+    # Bitcoin Exchange Rates
+    ####################################
+    poloniex:
+        klass: Poloniex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bittrex:
+        klass: Bittrex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    zb:
+        klass: Zb
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bitshares:
+        klass: Graphene
+        enable: True
+        url: wss://bitshares.openledger.info/ws
+        quotes:
+            - USD
+            - CNY
+        bases:
+            - BTS
+    coinmarketcap:
+        klass: Coinmarketcap
+        enable: True
         quotes:
             - BTC
             - BTS
         bases:
-            - BTC
             - USD
-    fixer:
-        klass: Fixer
+    aex:
+        klass: Aex
         enable: True
-        quotes:
-            - TRY
-            - SGD
-            - HKD
-            - NZD
-            - CNY
-            - MXN
-            - CAD
-            - CHF
-            - AUD
-            - GBP
-            - JPY
-            - EUR
-            - USD
-            - KRW
-        bases:
-            - USD
-            - EUR
-            - CNY
-            - JPY
-            - HKD
-    openexchangerates:
-        klass: OpenExchangeRates
-        enable: True
-        api_key: 
-        free_subscription: True
-        quotes:
-            - ARS
-            - BTC
-            - EUR
-            - JPY
-        base:
-            # Only USD with free subscription
-            - USD
-    currencylayer:
-        klass: CurrencyLayer
-        enable: True
-        api_key: 
-        free_subscription: True
-        quotes:
-            - ARS
-            - BTC
-            - EUR
-            - JPY
-        base:
-            # Only USD with free subscription
-            - USD
-    ChBTC:
-        klass: ChBTC
-        enable: False
->>>>>>> 0464e05ad3ae780788b03f99806af341cf61ecf6
         quotes:
             - BTS
         bases:
@@ -328,7 +315,6 @@ default:
         - coinmarketcap
         - aex
         - bitshares
-        - bitstamp
 
     # Core exchange factor for paying transaction fees in
     # non-BTS assets. Premium of 5%
