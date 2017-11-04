@@ -55,15 +55,16 @@ sudo touch /var/log/bitshare-pricefeed.log
 sudo chown ubuntu /var/log/bitshare-pricefeed.log
 ```
 
-Add to cron, where PASSWD is your Wallet Encryption Passphrase
+Add to cron, where PASSWD is your Wallet Encryption Passphrase. This logic will send stdin and sterr to the logfile.
 
 ```
 $ crontab -e
 
 SHELL=/bin/bash
+PATH=/home/ubuntu/bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 UNLOCK="PASSWD"
 
-0,30 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --no-confirm-warning updat>> /var/log/bitshares-pricefeed.log 2>&1
+0,30 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --no-confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
 ```
 
 ## Help
