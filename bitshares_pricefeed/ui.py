@@ -82,7 +82,8 @@ def warning(msg):
     click.echo(
         "[" +
         click.style("Warning", fg="yellow") +
-        "] " + msg
+        "] " + msg,
+        err=True  # this will cause click to post to stderr
     )
 
 
@@ -98,7 +99,8 @@ def alert(msg):
     click.echo(
         "[" +
         click.style("alert", fg="yellow") +
-        "] " + msg
+        "] " + msg,
+        err=True  # this will cause click to post to stderr
     )
 
 
