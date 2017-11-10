@@ -1,7 +1,8 @@
 import statistics
 import numpy as num
+import time
 from pprint import pprint
-from math import fabs, sqrt
+from math import fabs, sqrt, sin, pi
 from bitshares.account import Account
 from bitshares.asset import Asset
 from bitshares.market import Market

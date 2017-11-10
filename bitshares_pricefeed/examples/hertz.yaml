@@ -1,0 +1,54 @@
+# The RPC API node
+node: wss://node.bitshares.eu
+
+# The producer name(s)
+producer: username
+
+assets:
+    HERTZ:
+        # max age of a feed
+        maxage: 43200
+
+        # minimum percentage that forces a publish
+        min_change: 0.5
+
+        # warn if price change goes above this percentage
+        warn_change: 5
+
+        # skip publishing a feed if price goes above this percentage
+        skip_change: 25
+
+        # Basic Price setup
+        ###################
+
+        # We want to feed according to a formula
+        type: formula
+
+        # We want to refer to an internal asset
+        reference: intern 
+
+        # ... namely "USD" a.k.a. "bitUSD"
+        ref_asset: USD
+
+        #####################################
+        # * Sin wave modulation of bitUSD (Ranges from $0.50 to $1.50 throughout the month).
+        # * Uses Unix timestamps.
+        # * Starting timestamp is that of the 1st BTS2.0 block : http://bitshares-explorer.io/#/blocks/1 (2015-10-13T14:12:24 == 1444745544)
+        # * 365.2425 avg days in a year, divided by 12 is 30.436875 which is 2629746 seconds (the chosen period).
+        # * The amplitude of the sin wave is 0.5.
+        # * Verbose formula: {quoteSettlement_price} + ((({quoteSettlement_price} * Amplitude) * (SIN_CALCULATION( (((CurentTime - ReferenceTime)/Period) % 1) * Period) * ((2*3.1415926535)/Period))
+        #
+        # New HERTZ assets could be created with different periods, amplitudes and wave formulas. Increasing the period and reducing the amplitude would make a more stable HERTZ ABA, where as decreasing the period and increasing the amplitude would result in a more volatile HERTZ ABA.
+        #####################################
+
+        formula: ({quoteSettlement_price}) + (({quoteSettlement_price} * (0.14)) * sin(((((time.time() - 1444824000.0384)/2419200) % 1) * 2419200) * ((2*pi)/2419200)))
+
+        # Maximum short squeeze ratio
+        maximum_short_squeeze_ratio: 110.0
+
+        # maintenance collateral ratio (percentage)
+        maintenance_collateral_ratio: 200.0
+
+        # Core exchange factor for paying transaction fees in
+        # non-BTS assets. Premium of 5%
+        core_exchange_factor: 1.05

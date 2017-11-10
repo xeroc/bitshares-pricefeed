@@ -44,7 +44,7 @@ assets:
         maximum_short_squeeze_ratio: 110.0
 
         # maintenance collateral ratio (percentage)
-        maintenance_collateral_ratio: 175.0
+        maintenance_collateral_ratio: 200.0
 
         # Core exchange factor for paying transaction fees in
         # non-BTS assets. Premium of 5%
