@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import sys
 
-__VERSION__ = '0.0.6'
+__VERSION__ = '0.0.7'
 
 assert sys.version_info[0] == 3, "BitShares-PriceFeed requires Python > 3"
 
