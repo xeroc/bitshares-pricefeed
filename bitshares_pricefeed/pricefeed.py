@@ -9,6 +9,8 @@ from bitshares.market import Market
 from concurrent import futures
 from datetime import datetime, date, timedelta
 from . import sources
+import logging
+log = logging.getLogger(__name__)
 
 
 def weighted_std(values, weights):
@@ -117,6 +119,7 @@ class Feed(object):
             threads[name] = pool.submit(instance.fetch)
 
         for name in threads:
+            log.info("Checking name ...")
             self.feed[name] = threads[name].result()
 
     def assetconf(self, symbol, parameter):
@@ -245,6 +248,11 @@ class Feed(object):
 
                     for ratioA in self.price[interassetB][interassetA]:
                         for ratioB in self.price[symbol][interassetB]:
+                            if (
+                                interassetA not in self.price or
+                                target_symbol not in self.price[interassetA]
+                            ):
+                                continue
                             for idx in range(0, len(self.price[interassetA][target_symbol])):
                                 if self.volume[interassetA][target_symbol][idx] == 0:
                                     continue
@@ -280,6 +288,12 @@ class Feed(object):
         self.derive2Markets(asset, backing_symbol)
         self.derive3Markets(asset, backing_symbol)
 
+        if alias not in self.price:
+            log.warn("'alias' not in self.price")
+            return
+        if backing_symbol not in self.price[alias]:
+            log.warn("'backing_symbol' not in self.price[alias]")
+            return
         assetvolume = [v for v in self.volume[alias][backing_symbol]]
         assetprice = [p for p in self.price[alias][backing_symbol]]
 
