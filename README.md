@@ -48,10 +48,23 @@ Manually run the feed update
 bitshares-pricefeed update
 ```
 
-Add to cron, where PASSWD is your Wallet Encryption Passphrase
+Create a place for a logfile
 
 ```
-UNLOCK="PASSWD" bitshares-pricefeed update
+sudo touch /var/log/bitshare-pricefeed.log
+sudo chown ubuntu /var/log/bitshare-pricefeed.log
+```
+
+Add to cron, where PASSWD is your Wallet Encryption Passphrase. This logic will send stdin and sterr to the logfile.
+
+```
+$ crontab -e
+
+SHELL=/bin/bash
+PATH=/home/ubuntu/bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+UNLOCK="PASSWD"
+
+0,15,30,45 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --skip-critical --no-confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
 ```
 
 ## Help
