@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
+import sys
 import click
 import os
 import logging
 from pprint import pprint
+from bitshares.storage import configStorage as config
 from bitshares.price import Price
-from bitshares.asset import Asset
+from bitshares.account import Account
+# from bitshares.asset import Asset
 from .pricefeed import Feed
 from uptick.decorators import (
-    verbose,
+    # verbose,
     chain,
     unlock,
 )
@@ -46,6 +49,53 @@ def main(ctx, **kwargs):
 
 
 @main.command()
+@click.pass_context
+@chain
+@click.argument(
+    "key",
+    nargs=-1
+)
+@unlock
+def addkey(ctx, key):
+    """ Add a private key to the wallet
+    """
+    if not key:
+        while True:
+            key = click.prompt(
+                "Private Key (wif) [Enter to quit]",
+                hide_input=True,
+                show_default=False,
+                default="exit"
+            )
+            if not key or key == "exit":
+                break
+            try:
+                ctx.bitshares.wallet.addPrivateKey(key)
+            except Exception as e:
+                click.echo(str(e))
+                continue
+    else:
+        for k in key:
+            try:
+                ctx.bitshares.wallet.addPrivateKey(k)
+            except Exception as e:
+                click.echo(str(e))
+
+    installedKeys = ctx.bitshares.wallet.getPublicKeys()
+    if len(installedKeys) == 1:
+        name = ctx.bitshares.wallet.getAccountFromPublicKey(installedKeys[0])
+        if name:  # only if a name to the key was found
+            account = Account(name, bitshares_instance=ctx.bitshares)
+            click.echo("=" * 30)
+            click.echo("Setting new default user: %s" % account["name"])
+            click.echo()
+            click.echo("You can change these settings with:")
+            click.echo("    uptick set default_account <account>")
+            click.echo("=" * 30)
+            config["default_account"] = account["name"]
+
+
+@main.command()
 @click.argument(
     "example",
     default="default"
@@ -78,6 +128,7 @@ def create(ctx, example):
 def update(ctx, assets):
     """ Update price feed for assets
     """
+    exitcode = 0
 
     # Do i have a producer?
     assert "producer" in ctx.config and ctx.config["producer"], \
@@ -119,6 +170,7 @@ def update(ctx, assets):
                         price["priceChange"],
                     )
                 )
+                exitcode = 1
                 continue
             else:
                 if not confirmalert(
@@ -160,6 +212,8 @@ def update(ctx, assets):
 
     if ctx.bitshares.txbuffer.ops:
         ctx.bitshares.txbuffer.broadcast()
+
+    sys.exit(exitcode)
 
 
 if __name__ == '__main__':

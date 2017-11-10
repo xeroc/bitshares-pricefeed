@@ -26,10 +26,11 @@ producer: your_witness_name
 Enter Credentials
 
 ```
-uptick addkey
+bitshares-pricefeed addkey
 ```
 
-You will need to enter your cli wallet encryption passphrase here:
+You will need to enter your cli wallet encryption passphrase. If you
+don't have a pybitshares wallet, yet, one will be created:
 
 ```
 Wallet Encryption Passphrase:
@@ -82,6 +83,7 @@ Options:
   --help                          Show this message and exit.
 
 Commands:
+  addkey  Add a private key to the wallet
   create  Create config file
   update  Update price feed for assets
 ```
