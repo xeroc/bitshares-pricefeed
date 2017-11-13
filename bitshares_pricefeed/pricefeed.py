@@ -12,6 +12,8 @@ from . import sources
 import logging
 log = logging.getLogger(__name__)
 
+# logging.basicConfig(level=logging.INFO)
+
 
 def weighted_std(values, weights):
     """ Weighted std for statistical reasons
@@ -148,6 +150,8 @@ class Feed(object):
     def addPrice(self, base, quote, price, volume):
         """ Add a price to the instances, temporary storage
         """
+        log.info("addPrice(self, {}, {}, {}, {})".format(
+            base, quote, price, volume))
         if base not in self.price:
             self.price[base] = {}
         if quote not in self.price[base]:
@@ -170,6 +174,9 @@ class Feed(object):
             return
 
         for datasource in self.assetconf(symbol, "sources"):
+            if not self.config["exchanges"][datasource].get("enable", False):
+                continue
+            log.info("appendOriginalPrices({}) from {}".format(symbol, datasource))
             if datasource not in self.feed:
                 continue
             for base in list(self.feed[datasource]):
