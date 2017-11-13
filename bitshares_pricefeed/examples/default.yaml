@@ -335,7 +335,7 @@ default:
     # If set to True, prices are also derived via 3
     # markets instead of just two:
     # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
-    derive_across_3markets: True
+    derive_across_3markets: False
 
 
 # Enabled assets that are derived if no asset is provided via command
@@ -343,13 +343,16 @@ default:
 assets:
     BTC:
     USD:
-    # SILVER:
-    #    derive_across_3markets: True
+     sources:
+        - bitstamp
+        - poloniex
     CNY:
+        derive_across_3markets: True
         sources:
             - huobi
             - okcoin
             - lbank
+            - aex
     TRY:
     RUBLE:
     EUR:
