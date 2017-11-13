@@ -27,7 +27,6 @@ class Lbank(FeedSource):
                     feed[base][quote] = {
                         "price": (float(result["latest"])),
                         "volume": (float(result["vol"]) * self.scaleVolumeBy)}
-                    print(feed[base][quote])
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed
