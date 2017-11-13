@@ -239,6 +239,13 @@ exchanges:
             - BTS
         bases:
             - BTC
+    lbank:
+        klass: Lbank
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
 
         
 # default settings
@@ -306,15 +313,14 @@ default:
         - quandl
         - bitstamp
         - btcavg
-        # - btcchina
         - okcoin
-        # - huobi
         - poloniex
         - bittrex
         - zb
         - coinmarketcap
         - aex
         - bitshares
+        - lbank
 
     # Core exchange factor for paying transaction fees in
     # non-BTS assets. Premium of 5%
@@ -343,6 +349,7 @@ assets:
         sources:
             - huobi
             - okcoin
+            - lbank
     TRY:
     RUBLE:
     EUR:
