@@ -159,7 +159,7 @@ class Feed(object):
         self.price[base][quote].append(price)
         self.volume[base][quote].append(volume)
 
-    def appendOriginalPrices(self):
+    def appendOriginalPrices(self, symbol):
         """ Load feed data into price/volume array for processing
             This few lines solely take the data of the chosen exchanges and put
             them into price[base][quote]. Since markets are symmetric, the
@@ -169,7 +169,7 @@ class Feed(object):
         if "exchanges" not in self.config or not self.config["exchanges"]:
             return
 
-        for datasource in self.config["exchanges"]:
+        for datasource in self.assetconf(symbol, "sources"):
             if datasource not in self.feed:
                 continue
             for base in list(self.feed[datasource]):
@@ -284,7 +284,7 @@ class Feed(object):
             alias = symbol
 
         self.reset()
-        self.appendOriginalPrices()
+        self.appendOriginalPrices(symbol)
         self.derive2Markets(asset, backing_symbol)
         self.derive3Markets(asset, backing_symbol)
 
