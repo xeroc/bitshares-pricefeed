@@ -35,10 +35,14 @@ assets:
         # * 5% gain since creation of Federal Reserve System on 23th of December 1913.
         # * (date.today() - date(1913, 12, 23)).days is the number of days since then
         # * 365.2425 is the average number of days per year (https://en.wikipedia.org/wiki/Year)
-        # * rounded to 2 decimals
         # * relative to the USD price feed in BitShares
         #####################################
-        formula: 1.05 ** ((date.today() - date(1913, 12, 23)).days / 365.2425) / {quoteSettlement_price}
+        formula: (1.05 ** ((date.today() - date(1913, 12, 23)).days / 365.2425) / {quoteSettlement_price})
+
+        # quoteSettlement_price is (forced to) defined in USD/BTS. The
+        # numerator is USD/HERO, thus the end result of formula is
+        # BTS/HERO
+        formula_orientation: BTS:HERO
 
         # Maximum short squeeze ratio
         maximum_short_squeeze_ratio: 110.0

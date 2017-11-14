@@ -5,6 +5,8 @@ from pprint import pprint
 from math import fabs, sqrt, sin, pi
 from bitshares.account import Account
 from bitshares.asset import Asset
+from bitshares.price import Price
+from bitshares.amount import Amount
 from bitshares.market import Market
 from concurrent import futures
 from datetime import datetime, date, timedelta
@@ -124,7 +126,7 @@ class Feed(object):
             log.info("Checking name ...")
             self.feed[name] = threads[name].result()
 
-    def assetconf(self, symbol, parameter):
+    def assetconf(self, symbol, parameter, no_fail=False):
         """ Obtain the configuration for an asset, if not present, use default
         """
         if (
@@ -135,11 +137,15 @@ class Feed(object):
             return self.config["assets"][symbol][parameter]
         else:
             if "default" not in self.config:
+                if no_fail:
+                    return
                 raise ValueError("%s for %s not defined!" % (
                     parameter,
                     symbol
                 ))
             if parameter not in self.config["default"]:
+                if no_fail:
+                    return
                 raise ValueError("%s for %s not defined!" % (
                     parameter,
                     symbol
@@ -363,14 +369,25 @@ class Feed(object):
         elif self.assetconf(symbol, "reference") == "intern":
             ref_asset = self.assetconf(symbol, "ref_asset")
             market = Market("%s:%s" % (ref_asset, backing_symbol))
-            ticker = {k: float(v) for k, v in market.ticker().items()}
+            ticker_raw = market.ticker()
+            ticker = {}
+            print(ticker_raw["quoteSettlement_price"].as_quote("BTS"))
+            for k, v in ticker_raw.items():
+                if isinstance(v, Price):
+                    ticker[k] = float(v.as_quote("BTS"))
+                elif isinstance(v, Amount):
+                    ticker[k] = float(v)
             price = eval(
                 self.assetconf(symbol, "formula").format(**ticker))
         else:
             raise ValueError("Missing 'reference' for asset %s" % symbol)
 
+        orientation = self.assetconf(symbol, "formula_orientation", no_fail=True)\
+            or "{}:{}".format(backing_symbol, symbol)   # default value
+        price = Price(price, orientation)
+
         self.price_result[symbol] = {
-            "price": price,
+            "price": float(price.as_quote(backing_symbol)),
             "cer": price * self.assetconf(symbol, "core_exchange_factor"),
             "number": 1,
             "short_backing_symbol": backing_symbol,
