@@ -14,20 +14,19 @@ class Coinmarketcap(FeedSource):
             url = 'https://api.coinmarketcap.com/v1/ticker/'
             response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
             result = response.json()
-            base = self.bases[0]
-            if base == 'BTC':
-                feed[base] = {}
+            for asset in result:
                 for quote in self.quotes:
-                    if quote == base:
-                        continue
-                    for r in result:
-                        if r["symbol"] == base.upper():
-                            feed["BTC"][quote] = {
-                                "price": (float(result["price_btc"])),
-                                "volume": (float(result["24h_volume_usd"]) / float(result["price_btc"]) * self.scaleVolumeBy)}
-                            feed["USD"][quote] = {
-                                "price": (float(result["price_usd"])),
-                                "volume": (float(result["24h_volume_usd"]) * self.scaleVolumeBy)}
+                     if asset["symbol"] == quote:
+                         base = asset["symbol"]
+                         feed["BTC"] = {}
+                         feed["USD"] = {}
+                         feed["BTC"][quote] = {
+                             "price": (float(asset["price_btc"])),
+                             "volume": (float(asset["24h_volume_usd"]) / float(asset["price_btc"]) * self.scaleVolumeBy)}
+                         feed["USD"][quote] = {
+                             "price": (float(asset["price_usd"])),
+                             "volume": (float(asset["24h_volume_usd"]) * self.scaleVolumeBy)}
+
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         self._fetch_altcap()
