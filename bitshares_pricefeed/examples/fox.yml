@@ -1,0 +1,382 @@
+# This is the current configuration file used by fox. It will
+# need modifications to properly run in your environment.
+#
+# API KEYS
+##########
+# Some services require you to obtain an API key and provide it here in
+# the configuration:
+#
+#     * OpenExchangeRates (has a free subscription)
+#     * Currencylayer (has a a free subscription)
+#     * Quandl (has a a free subscription)
+#     * BitcoinAverage (has a a free subscription)
+#     
+# The corresponding variables can be defined in the `exchanges` key.
+
+
+# If true, a new price feed needs manual confirmation
+confirm: False
+
+# The producer name(s)
+producer: $PRODUCER_NAME
+
+# Exchange settings (Here, you may need to add API keys)
+exchanges:
+
+    ####################################
+    # Fiat Exchange Rates
+    ####################################
+    google:
+        klass: Google
+        enable: False 
+        quotes:
+            - ARS
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+            - USD
+            - KRW
+            - RUB
+        bases:
+            - USD
+            - EUR
+            - CNY
+        quoteNames:
+            RUB: RUBLE
+    fixer:
+        klass: Fixer
+        enable: True 
+        quotes:
+            - EUR
+            - USD
+            - CNY
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - KRW
+            - RUB
+            - SEK
+        bases:
+            - USD
+            - EUR
+            - CNY
+            - JPY
+            - HKD
+        quoteNames:
+            RUB: RUBLE
+    openexchangerates:
+        klass: OpenExchangeRates
+        enable: True
+        api_key: $API_KEY_OPENEXCHANGERATES 
+        free_subscription: True
+        quotes:
+            - ARS
+            - EUR
+#            - USD
+            - CNY
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - KRW
+            - SEK
+            - RUB
+        bases:
+            - USD # Only USD with free subscription
+#        quoteNames:
+#            RUB: RUBLE
+    currencylayer:
+        klass: CurrencyLayer
+        enable: True
+        api_key: $API_KEY_CURRENCYLAYER
+        free_subscription: True
+        quotes:
+            - ARS
+            - TRY
+            - SGD
+            - HKD
+            - NZD
+            - CNY
+            - MXN
+            - CAD
+            - CHF
+            - AUD
+            - GBP
+            - JPY
+            - EUR
+#            - USD
+            - KRW
+            - RUB
+            - SEK
+        bases:
+            - USD # Only USD with free subscription
+        quoteNames:
+            RUB: RUBLE
+
+    ####################################
+    # Commodities
+    ####################################
+    quandl:
+        klass: Quandl 
+        enable: True
+        api_key: $API_KEY_QUANDL
+        datasets:
+            "GOLD:USD": 
+                - LBMA/GOLD
+            "SILVER:USD":
+                - LBMA/SILVER
+
+    ####################################
+    # Bitcoin Exchange Rates
+    ####################################
+    bitstamp:
+        klass: Bitstamp
+        enable: False 
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
+    btcavg:
+        klass: BitcoinAverage
+        secret_key: $API_PRIV_KEY_BITCOINAVERAGE
+        public_key: $API_PUB_KEY_BITCOINAVERAGE
+        enable: True
+        quotes:
+            - BTC
+        bases:
+            - USD
+            - EUR
+            - CNY
+    btcchina:
+        klass: BtcChina
+        enable: False
+        quotes:
+            - BTC
+        bases:
+            - USD
+    okcoin:
+        klass: Okcoin
+        enable: False 
+        quotes:
+            - BTC
+        bases:
+            - CNY
+            - USD
+    huobi:
+        klass: Huobi 
+        enable: False
+        quotes:
+            - BTC
+        bases:
+            - CNY
+    ####################################
+    # Bitcoin Exchange Rates
+    ####################################
+    poloniex:
+        klass: Poloniex
+        enable: False 
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bittrex:
+        klass: Bittrex
+        enable: False 
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    zb:
+        klass: Zb
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    bitshares:
+        klass: Graphene
+        enable: True
+        url: wss://bitshares.openledger.info/ws
+        quotes:
+            - USD
+            - CNY
+        bases:
+            - BTS
+    coinmarketcap:
+        klass: Coinmarketcap
+        enable: True
+        quotes:
+            - BTC
+            - BTS
+        bases:
+            - BTC
+    aex:
+        klass: Aex
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+    lbank:
+        klass: Lbank
+        enable: True
+        quotes:
+            - BTS
+        bases:
+            - BTC
+
+        
+# default settings
+default:
+
+    # Type: extern, formula, alias
+    type: extern
+
+    # reference is only required if type==formula
+    # if extern: formula may contain 
+    #    *  {USD[weighted]}
+    #    *  {USD[median]}
+    #    *  {USD[mean]}   or other assets than USD
+    #    with values derived from external exchanges
+    #
+    # reference: extern
+
+    # if formula: settlement price can be taken from chain
+    #    accessible values are:
+    #    * {core_exchange_rate}
+    #    * {quoteSettlement_price}
+    #    * {latest}
+    #    while the asset needs to be defined with ref_asset
+    #
+    # ref_asset: USD
+    # formula: 100 * {quoteSettlement_price}
+    #
+    # if alias: Alias allows to change the name of the asset wrt to
+    #    external sources. E.g.:
+    #       SMART.USD:
+    #           type: alias
+    #           alias: USD
+    #
+    # alias: USD
+
+    # max age of a feed
+    maxage: 43200
+
+    # minimum percentage that forces a publish
+    min_change: 0.5
+
+    # warn if price change goes above this percentage
+    warn_change: 2.5
+
+    # skip publishing a feed if price goes above this percentage
+    skip_change: 5
+
+    # how to derive a single price from several sources
+    # Choose from: "median", "mean", or "weighted" (by volume)
+    metric: weighted
+
+    # Select sources for this particular asset. Each source
+    # has its own fetch() method and collects several markets
+    # any market of an exchanges is considered but only the
+    # current asset's price is derived
+    #
+    # Choose from: - "*": all,
+    #              - loaded exchanges (see below)
+    sources:
+#        - google 
+#        - huobi  
+#        - okcoin 
+        - fixer 
+        - openexchangerates
+        - currencylayer
+        - btcavg
+        - quandl
+#        - bitstamp
+#        - poloniex
+#        - bittrex 
+        - zb
+        - coinmarketcap
+        - aex
+        - bitshares
+        - lbank
+
+    # Core exchange factor for paying transaction fees in
+    # non-BTS assets. Premium of 5%
+    core_exchange_factor: 1.05
+
+    # maintenance collateral ratio (percentage)
+    maintenance_collateral_ratio: 175.0
+
+    # Maximum short squeeze ratio
+    maximum_short_squeeze_ratio: 110.0
+
+    # If set to True, prices are also derived via 3
+    # markets instead of just two:
+    # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
+    derive_across_3markets: False
+
+
+# Enabled assets that are derived if no asset is provided via command
+# line
+assets:
+    BTC:
+    USD:
+#     sources:
+#        - bitstamp
+#        - poloniex
+    CNY:
+#        derive_across_3markets: False # True
+#        sources:
+#            - huobi
+#            - okcoin
+#            - lbank
+#            - aex
+    TRY:
+    RUBLE:
+    EUR:
+    AUD:
+    JPY:
+    CHF:
+    MXN:
+    GBP:
+    CAD:
+    ARS:
+    HKD:
+    SEK:
+    SGD:
+    NZD:
+    KRW:
+    RUB:
+    GOLD:
+    SILVER:
+
+# Intermediate assets are useful for 2 and 3 market price derivation
+# E.g.: USD:BTC -> BTC:BTS = USD:BTS
+#       GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
+intermediate_assets:
+    - CNY
+    - USD
+    - BTC
