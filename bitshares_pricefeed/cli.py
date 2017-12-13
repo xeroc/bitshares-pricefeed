@@ -17,6 +17,7 @@ from uptick.decorators import (
 )
 from .ui import (
     configfile,
+    print_log,
     print_prices,
     confirmwarning,
     confirmalert,
@@ -138,6 +139,7 @@ def update(ctx, assets):
     feed.fetch()
     feed.derive(assets)
     prices = feed.get_prices()
+    print_log(prices)
     print_prices(prices)
 
     for symbol, price in prices.items():
