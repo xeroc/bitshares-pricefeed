@@ -32,7 +32,7 @@ class OpenExchangeRates(FeedSource):  # Hourly updated data with free subscripti
                             continue
                         if hasattr(self, "quoteNames") and quote in self.quoteNames:
                             quote = self.quoteNames[quote]
-                        feed[base][quote] = {"price": result["rates"][quote],
+                        feed[base][quote] = {"price": 1 / result["rates"][quote],
                                              "volume": 1.0}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))

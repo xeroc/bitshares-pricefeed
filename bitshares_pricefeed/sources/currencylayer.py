@@ -34,7 +34,7 @@ class CurrencyLayer(FeedSource):  # Hourly updated data over http with free subs
                         else:
                             quoteNew = quote
                         feed[base][quoteNew] = {
-                            "price": result["quotes"][base + quote],
+                            "price": 1 / result["quotes"][base + quote],
                             "volume": 1.0}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
