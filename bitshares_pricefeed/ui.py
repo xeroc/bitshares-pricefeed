@@ -35,9 +35,9 @@ def priceChange(new, old):
 def highlightLargeDeviation(value, ref, thres=5):
     percent = ((float(value) - float(ref))) / float(ref) * 100
     if fabs(percent) >= thres:
-        return click.style("%.2f" % percent, fg="red")
+        return click.style("%+5.2f" % percent, fg="red")
     else:
-        return click.style("%.2f" % percent, fg="green")
+        return click.style("%+5.2f" % percent, fg="green")
 
 
 def formatPrice(f):
@@ -72,7 +72,7 @@ def print_log(feeds):
                 formatPrice(d.get("price")),
                 highlightLargeDeviation(d.get("price"), feed["price"]),
                 d.get("volume"),
-                d.get("source"),
+                str(d.get("sources")),
             ])
     print(t.get_string())
 

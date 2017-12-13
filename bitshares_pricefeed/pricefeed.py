@@ -150,20 +150,28 @@ class Feed(object):
 
             return self.config["default"][parameter]
 
-    def addPrice(self, base, quote, price, volume, source=None):
+    def addPrice(self, base, quote, price, volume, sources=None):
         """ Add a price to the instances, temporary storage
         """
-        log.info("addPrice(self, {}, {}, {}, {} (source: {}))".format(
-            base, quote, price, volume, source))
+        log.info("addPrice(self, {}, {}, {}, {} (sources: {}))".format(
+            base, quote, price, volume, str(sources)))
         if base not in self.data:
             self.data[base] = {}
         if quote not in self.data[base]:
             self.data[base][quote] = []
 
+        flat_list = []
+        for source in sources:
+            if isinstance(source, list):
+                for item in source:
+                    flat_list.append(item)
+            else:
+                flat_list.append(source)
+
         self.data[base][quote].append(dict(
             price=price,
             volume=volume,
-            source=source
+            sources=flat_list
         ))
 
     def appendOriginalPrices(self, symbol):
@@ -200,7 +208,7 @@ class Feed(object):
                         quote,
                         self.feed[datasource][base][quote]["price"],
                         self.feed[datasource][base][quote]["volume"],
-                        source=datasource
+                        sources=[datasource]
                     )
 
                     if self.feed[datasource][base][quote]["price"] > 0 and \
@@ -211,7 +219,7 @@ class Feed(object):
                             base,
                             float(1.0 / self.feed[datasource][base][quote]["price"]),
                             float(self.feed[datasource][base][quote]["volume"] * self.feed[datasource][base][quote]["price"]),
-                            source=datasource
+                            sources=[datasource]
                         )
 
     def derive2Markets(self, asset, target_symbol):
@@ -235,10 +243,10 @@ class Feed(object):
                             target_symbol,
                             float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
                             float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
-                            source="{}*{}".format(
-                                self.data[interasset][target_symbol][idx]["source"],
-                                ratio["source"]
-                            )
+                            sources=[
+                                self.data[interasset][target_symbol][idx]["sources"],
+                                ratio["sources"]
+                            ]
                         )
 
     def derive3Markets(self, asset, target_symbol):
@@ -277,11 +285,11 @@ class Feed(object):
                                     target_symbol,
                                     float(self.data[interassetA][target_symbol][idx]["price"] * ratioA["price"] * ratioB["price"]),
                                     float(self.data[interassetA][target_symbol][idx]["volume"] * ratioA["price"] * ratioB["price"]),
-                                    source="{}*{}*{}".format(
-                                        self.data[interassetA][target_symbol][idx]["source"],
-                                        ratioA["source"],
-                                        ratioB["source"]
-                                    )
+                                    sources=[
+                                        self.data[interassetA][target_symbol][idx]["sources"],
+                                        ratioA["sources"],
+                                        ratioB["sources"]
+                                    ]
                                 )
 
     def type_extern(self, symbol):
