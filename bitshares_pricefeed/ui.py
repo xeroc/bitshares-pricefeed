@@ -2,8 +2,10 @@ import os
 import click
 import logging
 import yaml
+from math import fabs
 from datetime import datetime
 from bitshares.price import Price
+from bitshares.asset import Asset
 from prettytable import PrettyTable
 from functools import update_wrapper
 from bitshares import BitShares
@@ -30,12 +32,52 @@ def priceChange(new, old):
             return click.style("%.2f" % percent, fg="red")
 
 
+def highlightLargeDeviation(value, ref, thres=5):
+    percent = ((float(value) - float(ref))) / float(ref) * 100
+    if fabs(percent) >= thres:
+        return click.style("%+5.2f" % percent, fg="red")
+    else:
+        return click.style("%+5.2f" % percent, fg="green")
+
+
 def formatPrice(f):
     return click.style("%.10f" % f, fg="yellow")
 
 
 def formatStd(f):
     return click.style("%.2f" % f, bold=True)
+
+
+def print_log(feeds):
+    t = PrettyTable([
+        "base",
+        "quote",
+        "price",
+        "diff",
+        "volume",
+        "source"
+    ])
+    t.align = 'l'
+    for symbol, feed in feeds.items():
+        asset = Asset(symbol, full=True)
+        asset.ensure_full()
+        short_backing_asset = Asset(
+            asset["bitasset_data"]["options"]["short_backing_asset"])
+        backing_symbol = short_backing_asset["symbol"]
+        data = feed.get("log", {})
+        price = data.get(symbol)
+        if not price:
+            continue
+        for d in price.get(backing_symbol, []):
+            t.add_row([
+                symbol,
+                backing_symbol,
+                formatPrice(d.get("price")),
+                highlightLargeDeviation(d.get("price"), feed["price"]),
+                d.get("volume"),
+                str(d.get("sources")),
+            ])
+    print(t.get_string())
 
 
 def print_prices(feeds):
@@ -51,6 +93,8 @@ def print_prices(feeds):
     t.border = True
 
     for symbol, feed in feeds.items():
+        if not feed:
+            continue
         myprice = feed["price"]
         blockchain = float(Price(feed["global_feed"]["settlement_price"]))
         if "current_feed" in feed and feed["current_feed"]:

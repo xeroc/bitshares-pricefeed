@@ -7,6 +7,7 @@ import requests
 import sys
 import time
 from appdirs import user_data_dir
+import traceback
 
 
 _request_headers = {'content-type': 'application/json',
@@ -40,6 +41,7 @@ class FeedSource():
             return feed
         except Exception as e:
             print("\n{1} We encountered an error loading live data. Trying to recover from cache! ({0})".format(str(e), type(self).__name__))
+            # traceback.print_exc()
 
             # Terminate if not allow Failure
             if not self.allowFailure:

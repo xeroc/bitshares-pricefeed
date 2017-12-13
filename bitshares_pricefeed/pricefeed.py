@@ -5,6 +5,8 @@ from pprint import pprint
 from math import fabs, sqrt, sin, pi
 from bitshares.account import Account
 from bitshares.asset import Asset
+from bitshares.price import Price
+from bitshares.amount import Amount
 from bitshares.market import Market
 from concurrent import futures
 from datetime import datetime, date, timedelta
@@ -43,14 +45,11 @@ class Feed(object):
         """ Reset all for-processing variables
         """
         # Do not reset feeds here!
-        self.price = {}
-        self.volume = {}
+        self.data = {}
         for base in self.config["assets"]:
-            self.price[base] = {}
-            self.volume[base] = {}
+            self.data[base] = {}
             for quote in self.config["assets"]:
-                self.price[base][quote] = []
-                self.volume[base][quote] = []
+                self.data[base][quote] = []
 
     def get_my_current_feed(self, asset):
         """ Obtain my own price feed for an asset
@@ -65,8 +64,8 @@ class Feed(object):
         """
         asset = Asset(symbol, full=True)
         price = self.price_result.get(symbol, None)
-        if not price:
-            raise ValueError("Price for %s has not yet been derived" % symbol)
+        # if not price:
+        #     raise ValueError("Price for %s has not yet been derived" % symbol)
         newPrice = price["price"]
         # get my current feed
         current_feed = self.get_my_current_feed(asset)
@@ -124,7 +123,7 @@ class Feed(object):
             log.info("Checking name ...")
             self.feed[name] = threads[name].result()
 
-    def assetconf(self, symbol, parameter):
+    def assetconf(self, symbol, parameter, no_fail=False):
         """ Obtain the configuration for an asset, if not present, use default
         """
         if (
@@ -135,11 +134,15 @@ class Feed(object):
             return self.config["assets"][symbol][parameter]
         else:
             if "default" not in self.config:
+                if no_fail:
+                    return
                 raise ValueError("%s for %s not defined!" % (
                     parameter,
                     symbol
                 ))
             if parameter not in self.config["default"]:
+                if no_fail:
+                    return
                 raise ValueError("%s for %s not defined!" % (
                     parameter,
                     symbol
@@ -147,21 +150,29 @@ class Feed(object):
 
             return self.config["default"][parameter]
 
-    def addPrice(self, base, quote, price, volume):
+    def addPrice(self, base, quote, price, volume, sources=None):
         """ Add a price to the instances, temporary storage
         """
-        log.info("addPrice(self, {}, {}, {}, {})".format(
-            base, quote, price, volume))
-        if base not in self.price:
-            self.price[base] = {}
-        if quote not in self.price[base]:
-            self.price[base][quote] = []
-        if base not in self.volume:
-            self.volume[base] = {}
-        if quote not in self.volume[base]:
-            self.volume[base][quote] = []
-        self.price[base][quote].append(price)
-        self.volume[base][quote].append(volume)
+        log.info("addPrice(self, {}, {}, {}, {} (sources: {}))".format(
+            base, quote, price, volume, str(sources)))
+        if base not in self.data:
+            self.data[base] = {}
+        if quote not in self.data[base]:
+            self.data[base][quote] = []
+
+        flat_list = []
+        for source in sources:
+            if isinstance(source, list):
+                for item in source:
+                    flat_list.append(item)
+            else:
+                flat_list.append(source)
+
+        self.data[base][quote].append(dict(
+            price=price,
+            volume=volume,
+            sources=flat_list
+        ))
 
     def appendOriginalPrices(self, symbol):
         """ Load feed data into price/volume array for processing
@@ -196,7 +207,8 @@ class Feed(object):
                         base,
                         quote,
                         self.feed[datasource][base][quote]["price"],
-                        self.feed[datasource][base][quote]["volume"]
+                        self.feed[datasource][base][quote]["volume"],
+                        sources=[datasource]
                     )
 
                     if self.feed[datasource][base][quote]["price"] > 0 and \
@@ -206,7 +218,8 @@ class Feed(object):
                             quote,
                             base,
                             float(1.0 / self.feed[datasource][base][quote]["price"]),
-                            float(self.feed[datasource][base][quote]["volume"] * self.feed[datasource][base][quote]["price"])
+                            float(self.feed[datasource][base][quote]["volume"] * self.feed[datasource][base][quote]["price"]),
+                            sources=[datasource]
                         )
 
     def derive2Markets(self, asset, target_symbol):
@@ -220,16 +233,20 @@ class Feed(object):
         for interasset in self.config.get("intermediate_assets", []):
             if interasset == symbol:
                 continue
-            for ratio in self.price[symbol][interasset]:
-                if interasset in self.price and target_symbol in self.price[interasset]:
-                    for idx in range(0, len(self.price[interasset][target_symbol])):
-                        if self.volume[interasset][target_symbol][idx] == 0:
+            for ratio in self.data[symbol][interasset]:
+                if interasset in self.data and target_symbol in self.data[interasset]:
+                    for idx in range(0, len(self.data[interasset][target_symbol])):
+                        if self.data[interasset][target_symbol][idx]["volume"] == 0:
                             continue
                         self.addPrice(
                             symbol,
                             target_symbol,
-                            float(self.price[interasset][target_symbol][idx] * ratio),
-                            float(self.volume[interasset][target_symbol][idx] * ratio),
+                            float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
+                            float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
+                            sources=[
+                                self.data[interasset][target_symbol][idx]["sources"],
+                                ratio["sources"]
+                            ]
                         )
 
     def derive3Markets(self, asset, target_symbol):
@@ -253,21 +270,26 @@ class Feed(object):
                     if interassetA == interassetB:
                         continue
 
-                    for ratioA in self.price[interassetB][interassetA]:
-                        for ratioB in self.price[symbol][interassetB]:
+                    for ratioA in self.data[interassetB][interassetA]:
+                        for ratioB in self.data[symbol][interassetB]:
                             if (
-                                interassetA not in self.price or
-                                target_symbol not in self.price[interassetA]
+                                interassetA not in self.data or
+                                target_symbol not in self.data[interassetA]
                             ):
                                 continue
-                            for idx in range(0, len(self.price[interassetA][target_symbol])):
-                                if self.volume[interassetA][target_symbol][idx] == 0:
+                            for idx in range(0, len(self.data[interassetA][target_symbol])):
+                                if self.data[interassetA][target_symbol][idx]["volume"] == 0:
                                     continue
                                 self.addPrice(
                                     symbol,
                                     target_symbol,
-                                    float(self.price[interassetA][target_symbol][idx] * ratioA * ratioB),
-                                    float(self.volume[interassetA][target_symbol][idx] * ratioA * ratioB)
+                                    float(self.data[interassetA][target_symbol][idx]["price"] * ratioA["price"] * ratioB["price"]),
+                                    float(self.data[interassetA][target_symbol][idx]["volume"] * ratioA["price"] * ratioB["price"]),
+                                    sources=[
+                                        self.data[interassetA][target_symbol][idx]["sources"],
+                                        ratioA["sources"],
+                                        ratioB["sources"]
+                                    ]
                                 )
 
     def type_extern(self, symbol):
@@ -290,23 +312,26 @@ class Feed(object):
         else:
             alias = symbol
 
+        # Reset self.data
         self.reset()
+
+        # Fill in self.data
         self.appendOriginalPrices(symbol)
         self.derive2Markets(asset, backing_symbol)
         self.derive3Markets(asset, backing_symbol)
 
-        if alias not in self.price:
-            log.warn("'alias' not in self.price")
+        if alias not in self.data:
+            log.warn("'{}' not in self.data".format(alias))
             return
-        if backing_symbol not in self.price[alias]:
-            log.warn("'backing_symbol' not in self.price[alias]")
+        if backing_symbol not in self.data[alias]:
+            log.warn("'backing_symbol' ({}) not in self.data[{}]".format(backing_symbol, alias))
             return
-        assetvolume = [v for v in self.volume[alias][backing_symbol]]
-        assetprice = [p for p in self.price[alias][backing_symbol]]
+        assetvolume = [v["volume"] for v in self.data[alias][backing_symbol]]
+        assetprice = [p["price"] for p in self.data[alias][backing_symbol]]
 
         if len(assetvolume) > 1:
-            price_median = statistics.median(self.price[alias][backing_symbol])
-            price_mean = statistics.mean(self.price[alias][backing_symbol])
+            price_median = statistics.median([x["price"] for x in self.data[alias][backing_symbol]])
+            price_mean = statistics.mean([x["price"] for x in self.data[alias][backing_symbol]])
             price_weighted = num.average(assetprice, weights=assetvolume)
             price_std = weighted_std(assetprice, assetvolume)
         elif len(assetvolume) == 1:
@@ -343,6 +368,7 @@ class Feed(object):
             "short_backing_symbol": backing_symbol,
             "mssr": self.assetconf(symbol, "maximum_short_squeeze_ratio"),
             "mcr": self.assetconf(symbol, "maintenance_collateral_ratio"),
+            "log": self.data
         }
 
     def type_intern(self, symbol):
@@ -363,14 +389,25 @@ class Feed(object):
         elif self.assetconf(symbol, "reference") == "intern":
             ref_asset = self.assetconf(symbol, "ref_asset")
             market = Market("%s:%s" % (ref_asset, backing_symbol))
-            ticker = {k: float(v) for k, v in market.ticker().items()}
+            ticker_raw = market.ticker()
+            ticker = {}
+            print(ticker_raw["quoteSettlement_price"].as_quote("BTS"))
+            for k, v in ticker_raw.items():
+                if isinstance(v, Price):
+                    ticker[k] = float(v.as_quote("BTS"))
+                elif isinstance(v, Amount):
+                    ticker[k] = float(v)
             price = eval(
                 self.assetconf(symbol, "formula").format(**ticker))
         else:
             raise ValueError("Missing 'reference' for asset %s" % symbol)
 
+        orientation = self.assetconf(symbol, "formula_orientation", no_fail=True)\
+            or "{}:{}".format(backing_symbol, symbol)   # default value
+        price = Price(price, orientation)
+
         self.price_result[symbol] = {
-            "price": price,
+            "price": float(price.as_quote(backing_symbol)),
             "cer": price * self.assetconf(symbol, "core_exchange_factor"),
             "number": 1,
             "short_backing_symbol": backing_symbol,
@@ -406,6 +443,8 @@ class Feed(object):
 
         # tests
         for symbol in assets_derive:
+            if not self.price_result.get(symbol):
+                continue
             self.obtain_price_change(symbol)
             self.obtain_flags(symbol)
 

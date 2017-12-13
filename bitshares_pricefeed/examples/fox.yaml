@@ -1,5 +1,5 @@
-# This is an example configuration file that might need modifications
-# to properly run in your environment
+# This is the current configuration file used by fox. It will
+# need modifications to properly run in your environment.
 #
 # API KEYS
 ##########
@@ -15,10 +15,10 @@
 
 
 # If true, a new price feed needs manual confirmation
-confirm: True
+confirm: False
 
 # The producer name(s)
-producer:
+producer: $PRODUCER_NAME
 
 # Exchange settings (Here, you may need to add API keys)
 exchanges:
@@ -28,7 +28,7 @@ exchanges:
     ####################################
     google:
         klass: Google
-        enable: True
+        enable: False 
         quotes:
             - ARS
             - TRY
@@ -54,7 +54,7 @@ exchanges:
             RUB: RUBLE
     fixer:
         klass: Fixer
-        enable: True
+        enable: True 
         quotes:
             - EUR
             - USD
@@ -83,12 +83,12 @@ exchanges:
     openexchangerates:
         klass: OpenExchangeRates
         enable: True
-        api_key: 
+        api_key: $API_KEY_OPENEXCHANGERATES 
         free_subscription: True
         quotes:
             - ARS
             - EUR
-            - USD
+#            - USD
             - CNY
             - TRY
             - SGD
@@ -103,15 +103,14 @@ exchanges:
             - KRW
             - SEK
             - RUB
-        base:
-            # Only USD with free subscription
-            - USD
-        quoteNames:
-            RUB: RUBLE
+        bases:
+            - USD # Only USD with free subscription
+#        quoteNames:
+#            RUB: RUBLE
     currencylayer:
         klass: CurrencyLayer
         enable: True
-        api_key: 
+        api_key: $API_KEY_CURRENCYLAYER
         free_subscription: True
         quotes:
             - ARS
@@ -127,13 +126,12 @@ exchanges:
             - GBP
             - JPY
             - EUR
-            - USD
+#            - USD
             - KRW
             - RUB
             - SEK
-        base:
-            # Only USD with free subscription
-            - USD
+        bases:
+            - USD # Only USD with free subscription
         quoteNames:
             RUB: RUBLE
 
@@ -143,7 +141,7 @@ exchanges:
     quandl:
         klass: Quandl 
         enable: True
-        api_key:
+        api_key: $API_KEY_QUANDL
         datasets:
             "GOLD:USD": 
                 - LBMA/GOLD
@@ -155,7 +153,7 @@ exchanges:
     ####################################
     bitstamp:
         klass: Bitstamp
-        enable: True
+        enable: False 
         quotes:
             - BTC
         bases:
@@ -163,8 +161,8 @@ exchanges:
             - EUR
     btcavg:
         klass: BitcoinAverage
-        secret_key:
-        public_key:
+        secret_key: $API_PRIV_KEY_BITCOINAVERAGE
+        public_key: $API_PUB_KEY_BITCOINAVERAGE
         enable: True
         quotes:
             - BTC
@@ -181,7 +179,7 @@ exchanges:
             - USD
     okcoin:
         klass: Okcoin
-        enable: True
+        enable: False 
         quotes:
             - BTC
         bases:
@@ -199,14 +197,14 @@ exchanges:
     ####################################
     poloniex:
         klass: Poloniex
-        enable: True
+        enable: False 
         quotes:
             - BTS
         bases:
             - BTC
     bittrex:
         klass: Bittrex
-        enable: True
+        enable: False 
         quotes:
             - BTS
         bases:
@@ -235,7 +233,6 @@ exchanges:
             - BTS
         bases:
             - BTC
-            - USD
     aex:
         klass: Aex
         enable: True
@@ -292,10 +289,10 @@ default:
     min_change: 0.5
 
     # warn if price change goes above this percentage
-    warn_change: 1.5
+    warn_change: 2.5
 
     # skip publishing a feed if price goes above this percentage
-    skip_change: 3
+    skip_change: 5
 
     # how to derive a single price from several sources
     # Choose from: "median", "mean", or "weighted" (by volume)
@@ -309,17 +306,17 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        - google
-        - fixer
+#        - google 
+#        - huobi  
+#        - okcoin 
+        - fixer 
         - openexchangerates
         - currencylayer
         - btcavg
         - quandl
-        - bitstamp
-        - btcavg
-        - okcoin
-        - poloniex
-        - bittrex
+#        - bitstamp
+#        - poloniex
+#        - bittrex 
         - zb
         - coinmarketcap
         - aex
@@ -347,7 +344,16 @@ default:
 assets:
     BTC:
     USD:
+#     sources:
+#        - bitstamp
+#        - poloniex
     CNY:
+#        derive_across_3markets: False # True
+#        sources:
+#            - huobi
+#            - okcoin
+#            - lbank
+#            - aex
     TRY:
     RUBLE:
     EUR:
