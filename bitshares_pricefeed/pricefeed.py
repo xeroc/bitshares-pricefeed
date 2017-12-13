@@ -64,8 +64,8 @@ class Feed(object):
         """
         asset = Asset(symbol, full=True)
         price = self.price_result.get(symbol, None)
-        if not price:
-            raise ValueError("Price for %s has not yet been derived" % symbol)
+        # if not price:
+        #     raise ValueError("Price for %s has not yet been derived" % symbol)
         newPrice = price["price"]
         # get my current feed
         current_feed = self.get_my_current_feed(asset)
@@ -443,6 +443,8 @@ class Feed(object):
 
         # tests
         for symbol in assets_derive:
+            if not self.price_result.get(symbol):
+                continue
             self.obtain_price_change(symbol)
             self.obtain_flags(symbol)
 

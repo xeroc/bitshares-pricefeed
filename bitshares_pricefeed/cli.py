@@ -143,7 +143,10 @@ def update(ctx, assets):
     print_prices(prices)
 
     for symbol, price in prices.items():
-        # asset = Asset(symbol, full=True, bitshares_instance=ctx.bitshares)
+        # Skip empy symbols
+        if not price:
+            continue
+
         flags = price["flags"]
 
         # Prices that don't move sufficiently, or are not too old, can

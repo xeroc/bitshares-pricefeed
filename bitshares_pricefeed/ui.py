@@ -65,7 +65,10 @@ def print_log(feeds):
             asset["bitasset_data"]["options"]["short_backing_asset"])
         backing_symbol = short_backing_asset["symbol"]
         data = feed.get("log", {})
-        for d in data[symbol][backing_symbol]:
+        price = data.get(symbol)
+        if not price:
+            continue
+        for d in price.get(backing_symbol, []):
             t.add_row([
                 symbol,
                 backing_symbol,
@@ -90,6 +93,8 @@ def print_prices(feeds):
     t.border = True
 
     for symbol, feed in feeds.items():
+        if not feed:
+            continue
         myprice = feed["price"]
         blockchain = float(Price(feed["global_feed"]["settlement_price"]))
         if "current_feed" in feed and feed["current_feed"]:

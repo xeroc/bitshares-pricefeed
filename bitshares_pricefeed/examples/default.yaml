@@ -71,6 +71,7 @@ exchanges:
             - JPY
             - KRW
             - RUB
+            - SEK
         bases:
             - USD
             - EUR
@@ -100,6 +101,7 @@ exchanges:
             - GBP
             - JPY
             - KRW
+            - SEK
             - RUB
         base:
             # Only USD with free subscription
@@ -128,6 +130,7 @@ exchanges:
             - USD
             - KRW
             - RUB
+            - SEK
         base:
             # Only USD with free subscription
             - USD
@@ -231,6 +234,7 @@ exchanges:
             - BTC
             - BTS
         bases:
+            - BTC
             - USD
     aex:
         klass: Aex
@@ -343,16 +347,7 @@ default:
 assets:
     BTC:
     USD:
-     sources:
-        - bitstamp
-        - poloniex
     CNY:
-        derive_across_3markets: True
-        sources:
-            - huobi
-            - okcoin
-            - lbank
-            - aex
     TRY:
     RUBLE:
     EUR:
@@ -362,7 +357,15 @@ assets:
     MXN:
     GBP:
     CAD:
-    # ARS:
+    ARS:
+    HKD:
+    SEK:
+    SGD:
+    NZD:
+    KRW:
+    RUB:
+    GOLD:
+    SILVER:
 
 # Intermediate assets are useful for 2 and 3 market price derivation
 # E.g.: USD:BTC -> BTC:BTS = USD:BTS
