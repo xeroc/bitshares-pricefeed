@@ -1,0 +1,52 @@
+# If true, a new price feed needs manual confirmation
+confirm: False
+
+# The producer name(s)
+producer: $PRODUCER
+
+# Enabled assets that are derived if no asset is provided via command
+# line
+assets:
+ XCD:
+   # max age of a feed
+   maxage: 43200
+
+   # minimum percentage that forces a publish
+   min_change: 0.5
+
+   # warn if price change goes above this percentage
+   warn_change: 1.5
+
+   # skip publishing a feed if price goes above this percentage
+   skip_change: 3
+
+   # Basic Price setup
+   ###################
+   # We want to feed according to a formula
+   type: formula
+
+   # We want to refer to an internal asset
+   reference: intern 
+
+   # The formula:
+   # 1XCD = 0.37037 USD
+   formula: 0.37037
+
+   # quoteSettlement_price is (forced to) defined in USD/BTS. The
+   # numerator is USD/HERO, thus the end result of formula is
+   # BTS/HERO
+   formula_orientation: "USD:XCD"
+
+   # Maximum short squeeze ratio
+   maximum_short_squeeze_ratio: 100.5
+
+   # maintenance collateral ratio (percentage)
+   maintenance_collateral_ratio: 100.1
+
+   # Core exchange factor for paying transaction fees in
+   # non-BTS assets. Premium of 5%
+   core_exchange_rate:
+      orientation: "BTS:XCD"
+      factor: 1.05
+      ref_ticker: "USD:BTS"
+      ref_ticker_attribute: quoteSettlement_price
