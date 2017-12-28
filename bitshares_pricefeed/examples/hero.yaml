@@ -1,8 +1,8 @@
-# The RPC API node
-node: wss://node.bitshares.eu
+# If true, a new price feed needs manual confirmation
+confirm: False
 
 # The producer name(s)
-producer: in.abit
+producer: $PRODUCER
 
 assets:
     HERO:
