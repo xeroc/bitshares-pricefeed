@@ -390,12 +390,13 @@ class Feed(object):
                 metric
             ))
 
-        cer = self.get_cer(symbol, p)
+#        cer = self.get_cer(symbol, p)
 
         # price conversion to "price for one symbol" i.e.  base=*, quote=symbol
         self.price_result[symbol] = {
             "price": p,
-            "cer": cer,
+#            "cer": cer,
+            "cer": p * self.assetconf(symbol, "core_exchange_factor"),
             "mean": price_mean,
             "median": price_median,
             "weighted": price_weighted,
