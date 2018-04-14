@@ -1,6 +1,7 @@
 import statistics
 import numpy as num
 import time
+import requests
 from pprint import pprint
 from math import fabs, sqrt
 from bitshares.account import Account
