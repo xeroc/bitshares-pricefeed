@@ -10,7 +10,7 @@
 #     * Currencylayer (has a a free subscription)
 #     * Quandl (has a a free subscription)
 #     * BitcoinAverage (has a a free subscription)
-#     
+#
 # The corresponding variables can be defined in the `exchanges` key.
 
 
@@ -19,6 +19,13 @@ confirm: True
 
 # The producer name(s)
 producer: $PRODUCER
+
+
+
+# Magic wallet  variables
+magicwallet_correction: False
+magicwallet_key:  $MAGICWALLET_KEY
+mrate: 0.4
 
 # Exchange settings (Here, you may need to add API keys)
 exchanges:
@@ -83,7 +90,7 @@ exchanges:
     openexchangerates:
         klass: OpenExchangeRates
         enable: True
-        api_key: 
+        api_key:
         free_subscription: True
         quotes:
             - ARS
@@ -111,7 +118,7 @@ exchanges:
     currencylayer:
         klass: CurrencyLayer
         enable: True
-        api_key: 
+        api_key:
         free_subscription: True
         quotes:
             - ARS
@@ -141,11 +148,11 @@ exchanges:
     # Commodities
     ####################################
     quandl:
-        klass: Quandl 
+        klass: Quandl
         enable: True
         api_key:
         datasets:
-            "GOLD:USD": 
+            "GOLD:USD":
                 - LBMA/GOLD
             "SILVER:USD":
                 - LBMA/SILVER
@@ -188,7 +195,7 @@ exchanges:
             - CNY
             - USD
     huobi:
-        klass: Huobi 
+        klass: Huobi
         enable: False
         quotes:
             - BTC
@@ -251,7 +258,7 @@ exchanges:
         bases:
             - BTC
 
-        
+
 # default settings
 default:
 
@@ -259,7 +266,7 @@ default:
     type: extern
 
     # reference is only required if type==formula
-    # if extern: formula may contain 
+    # if extern: formula may contain
     #    *  {USD[weighted]}
     #    *  {USD[median]}
     #    *  {USD[mean]}   or other assets than USD
