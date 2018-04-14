@@ -390,7 +390,11 @@ class Feed(object):
                 metric
             ))
 
-        cer = self.get_cer(symbol, p)
+#        cer = self.get_cer(symbol, p)
+        if symbol == "CNY":
+            cer = p * 1.2 # TODO: REMOVE THIS HACK BY BUILDING CONSENSUS FOR AN ALTERNATIVE CALCULATION
+        else:
+            cer = p * self.assetconf(symbol, "core_exchange_factor")
 
         # price conversion to "price for one symbol" i.e.  base=*, quote=symbol
         self.price_result[symbol] = {
