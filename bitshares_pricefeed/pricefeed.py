@@ -1,9 +1,8 @@
 import statistics
 import numpy as num
 import time
-import requests
 from pprint import pprint
-from math import fabs, sqrt, sin, pi
+from math import fabs, sqrt
 from bitshares.account import Account
 from bitshares.asset import Asset
 from bitshares.price import Price
@@ -42,11 +41,9 @@ class Feed(object):
         """
         self.producer = Account(self.config["producer"])
 
-
     def reset(self):
         """ Reset all for-processing variables
         """
-
         # Do not reset feeds here!
         self.data = {}
         for base in self.config["assets"]:
@@ -104,6 +101,29 @@ class Feed(object):
         if (datetime.utcnow() - feed_age).total_seconds() > self.assetconf(symbol, "maxage"):
             self.price_result[symbol]["flags"].append("over_max_age")
 
+    def get_cer(self, symbol, price):
+        if (
+            symbol in self.config["assets"] and
+            "core_exchange_factor" in self.config["assets"][symbol]
+        ):
+            return price * self.assetconf(symbol, "core_exchange_factor")
+
+        if (
+            symbol in self.config["assets"] and
+            "core_exchange_rate" in self.config["assets"][symbol]
+        ):
+            cer = self.config["assets"][symbol]["core_exchange_rate"]
+            required = ["orientation", "factor", "ref_ticker"]
+            if any([x not in cer for x in required]):
+                raise ValueError(
+                    "Missing one of required settingd for cer: {}".format(
+                        str(required)))
+            ticker = Market(cer["ref_ticker"]).ticker()
+            price = ticker[cer["ref_ticker_attribute"]]
+            price *= cer["factor"]
+            orientation = Market(cer["orientation"])
+            return price.as_quote(orientation["quote"]["symbol"])
+
     def fetch(self):
         """ Fetch the prices from external exchanges
         """
@@ -112,8 +132,6 @@ class Feed(object):
         threads = {}
         if "exchanges" not in self.config or not self.config["exchanges"]:
             return
-
-
 
         for name, exchange in self.config["exchanges"].items():
             if "enable" in exchange and not exchange["enable"]:
@@ -128,6 +146,16 @@ class Feed(object):
             log.info("Checking name ...")
             self.feed[name] = threads[name].result()
 
+    def assethasconf(self, symbol, parameter):
+        """ Do we have symbol specific parameters?
+        """
+        if (
+            symbol in self.config["assets"] and
+            self.config["assets"][symbol] and
+            parameter in self.config["assets"][symbol]
+        ):
+            return True
+        return False
 
     def assetconf(self, symbol, parameter, no_fail=False):
         """ Obtain the configuration for an asset, if not present, use default
@@ -361,19 +389,19 @@ class Feed(object):
                 symbol,
                 metric
             ))
-        #implementar aca magic o arriba cunado calcula median mean y weighted
-        # if  flag_magic == true:
-             #p = p (ecuacion de ellos )
 
         if  (self.config["magicwallet_correction"]) and symbol == 'CNY':
             magic_rate=self.magic_wallet()
             mrate=self.config['mrate']
             p=p*(1+(magic_rate-1)*mrate)
 
+        cer = self.get_cer(symbol, p)
+
+
         # price conversion to "price for one symbol" i.e.  base=*, quote=symbol
         self.price_result[symbol] = {
             "price": p,
-            "cer": p * self.assetconf(symbol, "core_exchange_factor"),
+            "cer": cer,
             "mean": price_mean,
             "median": price_median,
             "weighted": price_weighted,
@@ -401,18 +429,21 @@ class Feed(object):
                 self.assetconf(symbol, "formula").format(
                     **self.price_result))
         elif self.assetconf(symbol, "reference") == "intern":
-            ref_asset = self.assetconf(symbol, "ref_asset")
-            market = Market("%s:%s" % (ref_asset, backing_symbol))
-            ticker_raw = market.ticker()
-            ticker = {}
-            print(ticker_raw["quoteSettlement_price"].as_quote("BTS"))
-            for k, v in ticker_raw.items():
-                if isinstance(v, Price):
-                    ticker[k] = float(v.as_quote("BTS"))
-                elif isinstance(v, Amount):
-                    ticker[k] = float(v)
-            price = eval(
-                self.assetconf(symbol, "formula").format(**ticker))
+            # Parse the forumla according to ref_asset
+            if self.assethasconf(symbol, "ref_asset"):
+                ref_asset = self.assetconf(symbol, "ref_asset")
+                market = Market("%s:%s" % (ref_asset, backing_symbol))
+                ticker_raw = market.ticker()
+                ticker = {}
+                for k, v in ticker_raw.items():
+                    if isinstance(v, Price):
+                        ticker[k] = float(v.as_quote("BTS"))
+                    elif isinstance(v, Amount):
+                        ticker[k] = float(v)
+                price = eval(str(
+                    self.assetconf(symbol, "formula")).format(**ticker))
+            else:
+                price = eval(str(self.assetconf(symbol, "formula")))
         else:
             raise ValueError("Missing 'reference' for asset %s" % symbol)
 
@@ -420,9 +451,11 @@ class Feed(object):
             or "{}:{}".format(backing_symbol, symbol)   # default value
         price = Price(price, orientation)
 
+        cer = self.get_cer(symbol, price)
+
         self.price_result[symbol] = {
             "price": float(price.as_quote(backing_symbol)),
-            "cer": price * self.assetconf(symbol, "core_exchange_factor"),
+            "cer": cer,
             "number": 1,
             "short_backing_symbol": backing_symbol,
             "mean": price,
