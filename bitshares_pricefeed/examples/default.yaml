@@ -353,31 +353,52 @@ default:
 # line
 assets:
     BTC:
+      core_exchange_factor: 1.05
     USD:
+      core_exchange_factor: 1.05
     CNY:
+      core_exchange_factor: 1.20
     TRY:
+      core_exchange_factor: 1.05
     RUBLE:
+      core_exchange_factor: 1.05
     EUR:
+      core_exchange_factor: 1.05
     AUD:
+      core_exchange_factor: 1.05
     JPY:
+      core_exchange_factor: 1.05
     CHF:
+      core_exchange_factor: 1.05
     MXN:
+      core_exchange_factor: 1.05
     GBP:
+      core_exchange_factor: 1.05
     CAD:
+      core_exchange_factor: 1.05
     ARS:
+      core_exchange_factor: 1.05
     HKD:
+      core_exchange_factor: 1.05
     SEK:
+      core_exchange_factor: 1.05
     SGD:
+      core_exchange_factor: 1.05
     NZD:
+      core_exchange_factor: 1.05
     KRW:
+      core_exchange_factor: 1.05
     RUB:
+      core_exchange_factor: 1.05
     GOLD:
+      core_exchange_factor: 1.05
     SILVER:
+      core_exchange_factor: 1.05
 
 # Intermediate assets are useful for 2 and 3 market price derivation
 # E.g.: USD:BTC -> BTC:BTS = USD:BTS
 #       GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
 intermediate_assets:
-    - CNY
     - USD
     - BTC
+    - CNY
