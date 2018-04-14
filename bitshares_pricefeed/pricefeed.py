@@ -1,6 +1,7 @@
 import statistics
 import numpy as num
 import time
+import requests
 from pprint import pprint
 from math import fabs, sqrt
 from bitshares.account import Account
@@ -276,7 +277,7 @@ class Feed(object):
                             symbol,
                             target_symbol,
                             float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
-                            float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
+                            float(self.data[interasset][target_symbol][idx]["volume"] * ratio["price"]),
                             sources=[
                                 self.data[interasset][target_symbol][idx]["sources"],
                                 ratio["sources"]
@@ -390,7 +391,13 @@ class Feed(object):
                 metric
             ))
 
+        if  (self.config["magicwallet_correction"]) and symbol == 'CNY':
+            magic_rate=self.magic_wallet()
+            mrate=self.config['mrate']
+            p=p*(1+(magic_rate-1)*mrate)
+
         cer = self.get_cer(symbol, p)
+
 
         # price conversion to "price for one symbol" i.e.  base=*, quote=symbol
         self.price_result[symbol] = {
@@ -493,3 +500,33 @@ class Feed(object):
 
     def get_prices(self):
         return self.price_result
+
+    def magic_wallet(self):
+        timeout=5
+        _headers = {'content-type': 'application/json',
+                            'apikey': self.config["magicwallet_key"] ,
+                            'Accept': '*/*'}
+        url="https://redemption.icowallet.net/api_v2/RechargeAndWithdrawTables/GetListForRechargeAndWithdrawtable"
+        response = requests.post(url=url, headers=_headers, timeout=timeout)
+        result = response.json()
+        for pricelist in result:
+            if pricelist['datatype']=='1h':
+                deposit_bitcny=float(pricelist['depositBitCNY'])
+                withdraw_bitcny=float(pricelist['withdrawBitCNY'])
+                deposit_fiatcny=float(pricelist['depositFiatCNY'])
+                withdraw_fiatcny=float(pricelist['withdrawFiatCNY'])
+                if (deposit_fiatcny+withdraw_fiatcny)==0:
+                    for pricelist24 in result:
+                        if pricelist24['datatype']=='24h':
+                            deposit_bitcny=float(pricelist24['depositBitCNY'])
+                            withdraw_bitcny=float(pricelist24['withdrawBitCNY'])
+                            deposit_fiatcny=float(pricelist24['depositFiatCNY'])
+                            withdraw_fiatcny=float(pricelist24['withdrawFiatCNY'])
+                            if (deposit_fiatcny+withdraw_fiatcny)==0:
+                                wantpricerate = 1
+                            else:
+                                wantpricerate =round(float((deposit_bitcny+withdraw_bitcny)/(deposit_bitcny+withdraw_bitcny)),2)
+                else:
+                    wantpricerate =float((deposit_fiatcny+withdraw_fiatcny)/(deposit_bitcny+withdraw_bitcny))
+
+        return wantpricerate

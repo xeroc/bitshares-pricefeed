@@ -143,7 +143,7 @@ def update(ctx, assets):
     print_prices(prices)
 
     for symbol, price in prices.items():
-        # Skip empy symbols
+        # Skip empty symbols
         if not price:
             continue
 
@@ -185,7 +185,15 @@ def update(ctx, assets):
                     )
                 ):
                     continue
-
+    # Always ask for confirmation if this flag is set to true
+    if "confirm" in ctx.config and ctx.config["confirm"]:
+        ctx.bitshares.txbuffer.constructTx()
+        pprint(ctx.bitshares.txbuffer.json())
+        if not confirmwarning(
+            "Please confirm"
+        ):
+            return
+            
         # Prices are denoted in `base`/`quote`. For a bitUSD feed, we
         # want something like    0.05 USD per BTS. This makes "USD" the
         # `base` and BTS the `quote`.
@@ -206,14 +214,7 @@ def update(ctx, assets):
             account=ctx.config["producer"]
         )
 
-    # Always ask for confirmation if this flag is set to true
-    if "confirm" in ctx.config and ctx.config["confirm"]:
-        ctx.bitshares.txbuffer.constructTx()
-        pprint(ctx.bitshares.txbuffer.json())
-        if not confirmwarning(
-            "Please confirm"
-        ):
-            return
+
 
     if ctx.bitshares.txbuffer.ops:
         ctx.bitshares.txbuffer.broadcast()
