@@ -282,7 +282,7 @@ class Feed(object):
                             symbol,
                             target_symbol,
                             float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
-                            float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
+                            float(self.data[interasset][target_symbol][idx]["volume"] * ratio["price"]),
                             sources=[
                                 self.data[interasset][target_symbol][idx]["sources"],
                                 ratio["sources"]
