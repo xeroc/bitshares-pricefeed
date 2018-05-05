@@ -122,6 +122,12 @@ class Feed(object):
         return price * self.assetconf(symbol, "core_exchange_factor")
 
 
+    def get_sources(self, symbol):
+        sources = self.assetconf(symbol, "sources")
+        if "*" in sources:
+            sources = list(self.config["exchanges"].keys())
+        return sources
+
     def fetch(self):
         """ Fetch the prices from external exchanges
         """
@@ -216,7 +222,7 @@ class Feed(object):
         if "exchanges" not in self.config or not self.config["exchanges"]:
             return
 
-        for datasource in self.assetconf(symbol, "sources"):
+        for datasource in self.get_sources(symbol):
             if not self.config["exchanges"][datasource].get("enable", False):
                 continue
             log.info("appendOriginalPrices({}) from {}".format(symbol, datasource))
