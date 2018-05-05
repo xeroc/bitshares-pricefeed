@@ -104,25 +104,23 @@ class Feed(object):
     def get_cer(self, symbol, price):
         if (
             symbol in self.config["assets"] and
-            "core_exchange_factor" in self.config["assets"][symbol]
-        ):
-            return price * self.assetconf(symbol, "core_exchange_factor")
-
-        if (
-            symbol in self.config["assets"] and
+            self.config["assets"][symbol] and
             "core_exchange_rate" in self.config["assets"][symbol]
         ):
             cer = self.config["assets"][symbol]["core_exchange_rate"]
-            required = ["orientation", "factor", "ref_ticker"]
+            required = ["orientation", "factor", "ref_ticker", "ref_ticker_attribute"]
             if any([x not in cer for x in required]):
                 raise ValueError(
-                    "Missing one of required settingd for cer: {}".format(
+                    "Missing one of required settings for cer: {}".format(
                         str(required)))
             ticker = Market(cer["ref_ticker"]).ticker()
             price = ticker[cer["ref_ticker_attribute"]]
             price *= cer["factor"]
             orientation = Market(cer["orientation"])
             return price.as_quote(orientation["quote"]["symbol"])
+        
+        return price * self.assetconf(symbol, "core_exchange_factor")
+
 
     def fetch(self):
         """ Fetch the prices from external exchanges
@@ -423,7 +421,7 @@ class Feed(object):
                 self.assetconf(symbol, "formula").format(
                     **self.price_result))
         elif self.assetconf(symbol, "reference") == "intern":
-            # Parse the forumla according to ref_asset
+            # Parse the formula according to ref_asset
             if self.assethasconf(symbol, "ref_asset"):
                 ref_asset = self.assetconf(symbol, "ref_asset")
                 market = Market("%s:%s" % (ref_asset, backing_symbol))
