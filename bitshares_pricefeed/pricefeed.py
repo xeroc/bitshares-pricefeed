@@ -271,6 +271,8 @@ class Feed(object):
         for interasset in self.config.get("intermediate_assets", []):
             if interasset == symbol:
                 continue
+            if interasset not in self.data[symbol]:
+                continue
             for ratio in self.data[symbol][interasset]:
                 if interasset in self.data and target_symbol in self.data[interasset]:
                     for idx in range(0, len(self.data[interasset][target_symbol])):
