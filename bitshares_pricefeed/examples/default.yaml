@@ -172,13 +172,6 @@ exchanges:
             - USD
             - EUR
             - CNY
-    btcchina:
-        klass: BtcChina
-        enable: False
-        quotes:
-            - BTC
-        bases:
-            - USD
     okcoin:
         klass: Okcoin
         enable: True
