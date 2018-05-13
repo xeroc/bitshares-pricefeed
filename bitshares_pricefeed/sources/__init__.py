@@ -5,7 +5,6 @@ from .bitcoinaverage import BitcoinAverage
 from .bitcoinindonesia import BitcoinIndonesia
 from .bitcoinvenezuela import BitcoinVenezuela
 from .bittrex import Bittrex
-from .bter import Bter
 from .chbtc import ChBTC
 from .coincap import Coincap
 from .coinmarketcap import Coinmarketcap
