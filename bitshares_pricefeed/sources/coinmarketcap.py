@@ -13,11 +13,11 @@ class Coinmarketcap(FeedSource):
             response = requests.get(
                 url=url, headers=_request_headers, timeout=self.timeout)
             result = response.json()
+            feed["BTC"] = {}
+            feed["USD"] = {}
             for asset in result:
                 for quote in self.quotes:
                     if asset["symbol"] == quote:
-                        feed["BTC"] = {}
-                        feed["USD"] = {}
                         feed["BTC"][quote] = {
                             "price": (float(asset["price_btc"])),
                             "volume": (float(
@@ -34,15 +34,12 @@ class Coinmarketcap(FeedSource):
             raise Exception(
                 "\nError fetching results from {1}! ({0})".format(
                     str(e), type(self).__name__))
-        self._fetch_altcap()
+        self._fetch_altcap(feed)
 
         return feed
 
-    def _fetch_altcap(self):
-        feed = {}
-        base = self.bases[0]
-        if base == 'BTC':
-            feed[base] = {}
+    def _fetch_altcap(self, feed):
+        if 'BTC' in self.bases and ('ALTCAP' in self.quotes or 'ALTCAP.X' in self.quotes):
             try:
                 ticker = requests.get(
                     'https://api.coinmarketcap.com/v1/ticker/').json()
@@ -68,10 +65,10 @@ class Coinmarketcap(FeedSource):
                 btc_altcapx_price = float(alt_cap_x) / float(btc_cap)
 
                 if 'ALTCAP' in self.quotes:
-                    feed[base]['ALTCAP'] = {"price": btc_altcap_price,
+                    feed['BTC']['ALTCAP'] = {"price": btc_altcap_price,
                                             "volume": 1.0}
                 if 'ALTCAP.X' in self.quotes:
-                    feed[base]['ALTCAP.X'] = {"price": btc_altcapx_price,
+                    feed['BTC']['ALTCAP.X'] = {"price": btc_altcapx_price,
                                               "volume": 1.0}
             except Exception as e:
                 raise Exception(
