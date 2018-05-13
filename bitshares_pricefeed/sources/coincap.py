@@ -18,10 +18,8 @@ class Coincap(FeedSource):
                 coincap_global = requests.get('http://www.coincap.io/global').json()
                 alt_cap = float(coincap_global["altCap"])
                 alt_caps_x = [float(coin['mktcap'])
-                              for coin in coincap_front
-                              if 'position24' in coin and
-                              int(coin['position24']) <= 11 and
-                              coin['short'] != "BTC"]
+                              for coin in coincap_front[0:11]
+                              if coin['short'] != "BTC"][0:10]
                 alt_cap_x = sum(alt_caps_x)
                 btc_cap = float(coincap_global["btcCap"])
 

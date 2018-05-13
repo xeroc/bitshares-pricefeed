@@ -10,6 +10,7 @@ class Checkers:
             assert quote in feed[base]
             for f in ['volume', 'price']:
                 assert f in feed[base][quote]
+                assert feed[base][quote][f] > 0.0
             if 'noVolume' in kargs and kargs['noVolume']:
                 assert feed[base][quote]['volume'] == 1.0
 
