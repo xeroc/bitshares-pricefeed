@@ -1,7 +1,6 @@
 import requests
 from . import FeedSource, _request_headers
 
-
 class CurrencyLayer(FeedSource):  # Hourly updated data over http with free subscription
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -13,15 +12,10 @@ class CurrencyLayer(FeedSource):  # Hourly updated data over http with free subs
         try:
             for base in self.bases:
                 url = "http://apilayer.net/api/live?access_key=%s&currencies=%s&source=%s&format=1" % (self.api_key, ",".join(self.quotes), base)
-                if self.free_subscription:
-                    if base == 'USD':
-                        response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
-                        result = response.json()
-                    else:
-                        continue
-                else:
-                    response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
-                    result = response.json()
+                if self.free_subscription and base != 'USD':
+                    continue
+                response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
+                result = response.json()
                 if result.get("source") == base:
                     feed[base] = {}
                     for quote in self.quotes:
