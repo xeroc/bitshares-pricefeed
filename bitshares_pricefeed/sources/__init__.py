@@ -17,7 +17,6 @@ from .okcoin import Okcoin
 from .openexchangerate import OpenExchangeRates
 from .poloniex import Poloniex
 from .quandl import Quandl
-from .yunbi import Yunbi
 from .bitstamp import Bitstamp
 from .aex import Aex
 from .zb import Zb
