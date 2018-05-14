@@ -1,9 +1,7 @@
 import codecs
 import re
 import csv
-import json
 import requests
-import datetime
 from . import FeedSource, _request_headers
 
 
@@ -48,9 +46,12 @@ class Google(FeedSource):  # Google Finance
         return feed
 
     def _fetchEquities(self, feed):
-        for equity in self.equities:
-                (quote, base) = equity.split(':')
-                feed[base][self._adjustQuoteName(quote)] = self._fetch_one(quote)
+        if hasattr(self, "equities"):
+            for equity in self.equities:
+                    (quote, base) = equity.split(':')
+                    if not base in feed:
+                        feed[base] = {}
+                    feed[base][self._adjustQuoteName(quote)] = self._fetch_one(quote)
         return feed
 
     def _fetch(self):
