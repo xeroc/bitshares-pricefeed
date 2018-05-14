@@ -21,12 +21,16 @@ class Lbank(FeedSource):
                             quote=quote.lower()
                         ),
                         headers=_request_headers, timeout=self.timeout)
-                    result = response.json()["ticker"]
+                    result = response.json()
+                    if 'result' in result and result['result'] == 'false':
+                        raise Exception('Error %s from LBank (see https://www.lbank.info/documents.html#/rest/api-reference).' 
+                                        % result['error_code'])
+                    ticker = result['ticker']
                     if hasattr(self, "quoteNames") and quote in self.quoteNames:
                         quote = self.quoteNames[quote]
                     feed[base][quote] = {
-                        "price": (float(result["latest"])),
-                        "volume": (float(result["vol"]) * self.scaleVolumeBy)}
+                        "price": (float(ticker["latest"])),
+                        "volume": (float(ticker["vol"]) * self.scaleVolumeBy)}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed
