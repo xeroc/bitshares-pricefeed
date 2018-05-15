@@ -23,3 +23,4 @@ from .zb import Zb
 from .lbank import Lbank
 from .alphavantage import AlphaVantage
 from .binance import Binance
+from .iex import Iex
