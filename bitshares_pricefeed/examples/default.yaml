@@ -341,6 +341,7 @@ assets:
     BTC:
     USD:
     CNY:
+        core_exchange_factor: 1.2
     TRY:
     RUBLE:
     EUR:
