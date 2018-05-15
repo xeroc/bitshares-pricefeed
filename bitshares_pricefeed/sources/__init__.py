@@ -25,3 +25,4 @@ from .alphavantage import AlphaVantage
 from .binance import Binance
 from .iex import Iex
 from .worldcoinindex import WorldCoinIndex
+from .coindesk import Coindesk
