@@ -64,3 +64,6 @@ config.yml
 tmp.py
 .ropeproject
 bitshares
+
+/.vscode
+/.pytest_cache
