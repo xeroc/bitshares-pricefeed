@@ -24,3 +24,4 @@ from .lbank import Lbank
 from .alphavantage import AlphaVantage
 from .binance import Binance
 from .iex import Iex
+from .worldcoinindex import WorldCoinIndex
