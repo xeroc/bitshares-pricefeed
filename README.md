@@ -87,6 +87,22 @@ Commands:
   create  Create config file
   update  Update price feed for assets
 ```
+## Development
+
+To run tests you need get API kays for the providers, and register them as environment variables:
+
+```
+export QUANDL_APIKEY=
+export OPENEXCHANGERATE_APIKEY=
+export FIXER_APIKEY=
+export CURRENCYLAYER_APIKEY=
+export ALPHAVANTAGE_APIKEY=
+export WORLDCOININDEX_APIKEY= 
+```
+
+To run all tests use:  `pytest`.
+
+To run a specific test: `pytest -k bitcoinvenezuela`.
 
 # IMPORTANT NOTE
 

@@ -67,3 +67,4 @@ bitshares
 
 /.vscode
 /.pytest_cache
+tests/api_keys.sh
