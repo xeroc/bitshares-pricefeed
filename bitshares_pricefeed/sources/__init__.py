@@ -26,3 +26,4 @@ from .binance import Binance
 from .iex import Iex
 from .worldcoinindex import WorldCoinIndex
 from .coindesk import Coindesk
+from .bitsharesfeed import BitsharesFeed

@@ -119,6 +119,7 @@ AlphaVantage | OK | FIAT, Stocks, BTC | Yes | last from unknown source for curre
 IEX  | OK | Stocks | No | last ("IEX real time price", "15 minute delayed price", "Close" or "Previous close") and volume. 
 RobinHood | OK | Stocks | No | last, no volume, from unknown source in real time
 WorldCoinIndex | OK | Crypto | Yes| volume weighted price, sum of market volume.
+BitsharesFeed | OK | Crypto (MPA) | No | current feed price in Bitshares DEX, no volume.
 
 
 ## Development
