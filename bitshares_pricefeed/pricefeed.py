@@ -2,7 +2,7 @@ import statistics
 import numpy as num
 import time
 from pprint import pprint
-from math import fabs, sqrt
+from math import *
 from bitshares.account import Account
 from bitshares.asset import Asset
 from bitshares.price import Price
@@ -75,7 +75,7 @@ class Feed(object):
             oldPrice = float("inf")
         self.price_result[symbol]["priceChange"] = (oldPrice - newPrice) / newPrice * 100.0
         self.price_result[symbol]["current_feed"] = current_feed
-        self.price_result[symbol]["global_feed"] = asset["bitasset_data"]["current_feed"]
+        self.price_result[symbol]["global_feed"] = asset.feed
 
     def obtain_flags(self, symbol):
         """ This will add attributes to price_result and indicate the results
@@ -437,7 +437,7 @@ class Feed(object):
                 ticker = {}
                 for k, v in ticker_raw.items():
                     if isinstance(v, Price):
-                        ticker[k] = float(v.as_quote("BTS"))
+                        ticker[k] = float(v.as_quote(backing_symbol))
                     elif isinstance(v, Amount):
                         ticker[k] = float(v)
                 price = eval(str(
@@ -448,13 +448,13 @@ class Feed(object):
             raise ValueError("Missing 'reference' for asset %s" % symbol)
 
         orientation = self.assetconf(symbol, "formula_orientation", no_fail=True)\
-            or "{}:{}".format(backing_symbol, symbol)   # default value
-        price = Price(price, orientation)
+            or "{}:{}".format(symbol, backing_symbol)   # default value
+        price = Price(price, orientation).as_quote(backing_symbol)
 
         cer = self.get_cer(symbol, price)
 
         self.price_result[symbol] = {
-            "price": float(price.as_quote(backing_symbol)),
+            "price": float(price),
             "cer": cer,
             "number": 1,
             "short_backing_symbol": backing_symbol,
