@@ -31,7 +31,7 @@ exchanges:
     ####################################
     google:
         klass: Google
-        enable: True
+        enable: False
         quotes:
             - ARS
             - TRY
@@ -108,11 +108,9 @@ exchanges:
             - KRW
             - SEK
             - RUB
-        base:
+        bases:
             # Only USD with free subscription
             - USD
-        quoteNames:
-            RUB: RUBLE
     currencylayer:
         klass: CurrencyLayer
         enable: True
@@ -136,7 +134,7 @@ exchanges:
             - KRW
             - RUB
             - SEK
-        base:
+        bases:
             # Only USD with free subscription
             - USD
         quoteNames:
@@ -183,7 +181,6 @@ exchanges:
         quotes:
             - BTC
         bases:
-            - CNY
             - USD
     huobi:
         klass: Huobi 
@@ -204,7 +201,7 @@ exchanges:
             - BTC
     bittrex:
         klass: Bittrex
-        enable: True
+        enable: False
         quotes:
             - BTS
         bases:
@@ -307,17 +304,14 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        - google
         - fixer
         - openexchangerates
         - currencylayer
         - btcavg
         - quandl
         - bitstamp
-        - btcavg
         - okcoin
         - poloniex
-        - bittrex
         - zb
         - coinmarketcap
         - aex
