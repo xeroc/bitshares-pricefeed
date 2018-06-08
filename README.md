@@ -80,6 +80,7 @@ Options:
                                   Need for manual confirmation of warnings
   --skip-critical / --no-skip-critical
                                   Skip critical feeds
+  --node <wss://host:port>        Node to connect to
   --help                          Show this message and exit.
 
 Commands:
@@ -90,7 +91,7 @@ Commands:
 
 ## Sources
 
-The following data sources are currently avialable:
+The following data sources are currently available:
 
 Name | Status | Assets type | API Key | Description
  --- | ---    | ---         | ---     |   ---
@@ -124,7 +125,7 @@ BitsharesFeed | OK | Crypto (MPA) | No | current feed price in Bitshares DEX, no
 
 ## Development
 
-To run tests you need get API kays for the providers, and register them as environment variables:
+To run tests you need get API keys for the providers, and register them as environment variables:
 
 ```
 export QUANDL_APIKEY=

@@ -42,6 +42,11 @@ log = logging.getLogger(__name__)
     help="Skip critical feeds",
     default=False,
 )
+@click.option(
+    "--node",
+    metavar='<wss://host:port>',
+    help="Node to connect to",
+)
 @click.pass_context
 def main(ctx, **kwargs):
     ctx.obj = {}
