@@ -89,7 +89,7 @@ default:
     maintenance_collateral_ratio: 175.0
 
     # Maximum short squeeze ratio
-    maximum_short_squeeze_ratio: 110.0
+    maximum_short_squeeze_ratio: 150.0
 
     # If set to True, prices are also derived via 3
     # markets instead of just two:
