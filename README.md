@@ -68,6 +68,13 @@ UNLOCK="PASSWD"
 0,15,30,45 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --skip-critical --no-confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
 ```
 
+Alternatively build and use the Docker image:
+
+```
+docker build -t bitshares-pricefeed .
+docker run -v /path/to/config:/config -v /path/to/wallet:/root/.local/share/bitshares -e UNLOCK=PASS bitshares-pricefeed
+```
+
 ## Help
 
 ```
