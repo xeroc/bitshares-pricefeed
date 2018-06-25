@@ -4,7 +4,7 @@ from . import FeedSource, _request_headers
 class AlphaVantage(FeedSource):  # Alpha Vantage
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.timeout
+        self.timeout = getattr(self, 'timeout', 15)
         if not hasattr(self, "api_key"):
             raise Exception("AlphaVantage FeedSource requires an 'api_key'.")
 
