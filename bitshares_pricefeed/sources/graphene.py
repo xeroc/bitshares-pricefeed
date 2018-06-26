@@ -10,13 +10,13 @@ class Graphene(FeedSource):
         feed = {}
         try:
             for base in self.bases:
+                feed[base] = {}
                 for quote in self.quotes:
                     if quote == base:
                         continue
                     ticker = Market("%s:%s" % (quote, base)).ticker()
                     if hasattr(self, "quoteNames") and quote in self.quoteNames:
                         quote = self.quoteNames[quote]
-                    feed[base] = {}
                     if (float(ticker["latest"])) > 0 and float(ticker["quoteVolume"]) > 0:
                         feed[base][quote] = {"price": (float(ticker["latest"])),
                                              "volume": (float(ticker["quoteVolume"]) * self.scaleVolumeBy)}

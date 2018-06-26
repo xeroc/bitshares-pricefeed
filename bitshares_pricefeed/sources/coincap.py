@@ -7,6 +7,7 @@ from . import FeedSource, _request_headers
 class Coincap(FeedSource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.nb_coins_included_in_altcap_x = getattr(self, 'nb_coins_included_in_altcap_x', 10)
 
     def _fetch(self):
         feed = {}
@@ -18,10 +19,8 @@ class Coincap(FeedSource):
                 coincap_global = requests.get('http://www.coincap.io/global').json()
                 alt_cap = float(coincap_global["altCap"])
                 alt_caps_x = [float(coin['mktcap'])
-                              for coin in coincap_front
-                              if 'position24' in coin and
-                              int(coin['position24']) <= 11 and
-                              coin['short'] != "BTC"]
+                              for coin in coincap_front[0:self.nb_coins_included_in_altcap_x+1]
+                              if coin['short'] != "BTC"][0:self.nb_coins_included_in_altcap_x]
                 alt_cap_x = sum(alt_caps_x)
                 btc_cap = float(coincap_global["btcCap"])
 

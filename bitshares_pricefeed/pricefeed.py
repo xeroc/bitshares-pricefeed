@@ -2,14 +2,14 @@ import statistics
 import numpy as num
 import time
 from pprint import pprint
-from math import fabs, sqrt
+from math import *
 from bitshares.account import Account
 from bitshares.asset import Asset
 from bitshares.price import Price
 from bitshares.amount import Amount
 from bitshares.market import Market
 from concurrent import futures
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from . import sources
 import logging
 log = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class Feed(object):
             oldPrice = float("inf")
         self.price_result[symbol]["priceChange"] = (oldPrice - newPrice) / newPrice * 100.0
         self.price_result[symbol]["current_feed"] = current_feed
-        self.price_result[symbol]["global_feed"] = asset["bitasset_data"]["current_feed"]
+        self.price_result[symbol]["global_feed"] = asset.feed
 
     def obtain_flags(self, symbol):
         """ This will add attributes to price_result and indicate the results
@@ -98,31 +98,35 @@ class Feed(object):
 
         # Feed too old
         feed_age = self.price_result[symbol]["current_feed"]["date"] if self.price_result[symbol]["current_feed"] else datetime.min
-        if (datetime.utcnow() - feed_age).total_seconds() > self.assetconf(symbol, "maxage"):
+        if (datetime.now(timezone.utc) - feed_age).total_seconds() > self.assetconf(symbol, "maxage"):
             self.price_result[symbol]["flags"].append("over_max_age")
 
     def get_cer(self, symbol, price):
         if (
             symbol in self.config["assets"] and
-            "core_exchange_factor" in self.config["assets"][symbol]
-        ):
-            return price * self.assetconf(symbol, "core_exchange_factor")
-
-        if (
-            symbol in self.config["assets"] and
+            self.config["assets"][symbol] and
             "core_exchange_rate" in self.config["assets"][symbol]
         ):
             cer = self.config["assets"][symbol]["core_exchange_rate"]
-            required = ["orientation", "factor", "ref_ticker"]
+            required = ["orientation", "factor", "ref_ticker", "ref_ticker_attribute"]
             if any([x not in cer for x in required]):
                 raise ValueError(
-                    "Missing one of required settingd for cer: {}".format(
+                    "Missing one of required settings for cer: {}".format(
                         str(required)))
             ticker = Market(cer["ref_ticker"]).ticker()
             price = ticker[cer["ref_ticker_attribute"]]
             price *= cer["factor"]
             orientation = Market(cer["orientation"])
             return price.as_quote(orientation["quote"]["symbol"])
+        
+        return price * self.assetconf(symbol, "core_exchange_factor")
+
+
+    def get_sources(self, symbol):
+        sources = self.assetconf(symbol, "sources")
+        if "*" in sources:
+            sources = list(self.config["exchanges"].keys())
+        return sources
 
     def fetch(self):
         """ Fetch the prices from external exchanges
@@ -218,7 +222,7 @@ class Feed(object):
         if "exchanges" not in self.config or not self.config["exchanges"]:
             return
 
-        for datasource in self.assetconf(symbol, "sources"):
+        for datasource in self.get_sources(symbol):
             if not self.config["exchanges"][datasource].get("enable", False):
                 continue
             log.info("appendOriginalPrices({}) from {}".format(symbol, datasource))
@@ -267,6 +271,8 @@ class Feed(object):
         for interasset in self.config.get("intermediate_assets", []):
             if interasset == symbol:
                 continue
+            if interasset not in self.data[symbol]:
+                continue
             for ratio in self.data[symbol][interasset]:
                 if interasset in self.data and target_symbol in self.data[interasset]:
                     for idx in range(0, len(self.data[interasset][target_symbol])):
@@ -276,7 +282,7 @@ class Feed(object):
                             symbol,
                             target_symbol,
                             float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
-                            float(self.data[interasset][target_symbol][idx]["price"] * ratio["price"]),
+                            float(self.data[interasset][target_symbol][idx]["volume"] * ratio["price"]),
                             sources=[
                                 self.data[interasset][target_symbol][idx]["sources"],
                                 ratio["sources"]
@@ -423,7 +429,7 @@ class Feed(object):
                 self.assetconf(symbol, "formula").format(
                     **self.price_result))
         elif self.assetconf(symbol, "reference") == "intern":
-            # Parse the forumla according to ref_asset
+            # Parse the formula according to ref_asset
             if self.assethasconf(symbol, "ref_asset"):
                 ref_asset = self.assetconf(symbol, "ref_asset")
                 market = Market("%s:%s" % (ref_asset, backing_symbol))
@@ -431,7 +437,7 @@ class Feed(object):
                 ticker = {}
                 for k, v in ticker_raw.items():
                     if isinstance(v, Price):
-                        ticker[k] = float(v.as_quote("BTS"))
+                        ticker[k] = float(v.as_quote(backing_symbol))
                     elif isinstance(v, Amount):
                         ticker[k] = float(v)
                 price = eval(str(
@@ -442,13 +448,13 @@ class Feed(object):
             raise ValueError("Missing 'reference' for asset %s" % symbol)
 
         orientation = self.assetconf(symbol, "formula_orientation", no_fail=True)\
-            or "{}:{}".format(backing_symbol, symbol)   # default value
-        price = Price(price, orientation)
+            or "{}:{}".format(symbol, backing_symbol)   # default value
+        price = Price(price, orientation).as_quote(backing_symbol)
 
         cer = self.get_cer(symbol, price)
 
         self.price_result[symbol] = {
-            "price": float(price.as_quote(backing_symbol)),
+            "price": float(price),
             "cer": cer,
             "number": 1,
             "short_backing_symbol": backing_symbol,

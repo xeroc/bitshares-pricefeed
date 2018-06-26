@@ -3,7 +3,7 @@ import click
 import logging
 import yaml
 from math import fabs
-from datetime import datetime
+from datetime import datetime, timezone
 from bitshares.price import Price
 from bitshares.asset import Asset
 from prettytable import PrettyTable
@@ -95,18 +95,19 @@ def print_prices(feeds):
     for symbol, feed in feeds.items():
         if not feed:
             continue
+        collateral = feed["short_backing_symbol"]
         myprice = feed["price"]
-        blockchain = float(Price(feed["global_feed"]["settlement_price"]))
+        blockchain = feed["global_feed"]["settlement_price"].as_quote(collateral)['price']
         if "current_feed" in feed and feed["current_feed"]:
-            last = float(feed["current_feed"]["settlement_price"])
-            age = (str(datetime.utcnow() - feed["current_feed"]["date"]))
+            last = feed["current_feed"]["settlement_price"].as_quote(collateral)['price']
+            age = (str(datetime.now(timezone.utc) - feed["current_feed"]["date"]))
         else:
             last = -1.0
             age = "unknown"
         # Get Final Price according to price metric
         t.add_row([
             symbol,
-            ("%s") % (feed["short_backing_symbol"]),
+            ("%s" % collateral),
             ("%s" % formatPrice(feed["price"])),
             ("%s" % formatPrice(feed["cer"])),
             ("%s (%s)" % (formatPrice(feed["mean"]), priceChange(myprice, feed.get("mean")))),

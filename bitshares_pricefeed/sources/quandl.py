@@ -4,11 +4,9 @@ from . import FeedSource, _request_headers
 import quandl
 
 
-class Quandl(FeedSource):  # Google Finance
+class Quandl(FeedSource):  # Quandl using Python API client
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.period = 60 * 60  # 1h
-        self.days = 1
         self.maxAge = getattr(self, "maxAge", 5)
 
         quandl.ApiConfig.api_key = self.api_key
@@ -33,11 +31,9 @@ class Quandl(FeedSource):  # Google Finance
         return feed
 
 
-class QuandlPlain(FeedSource):  # Google Finance
+class QuandlPlain(FeedSource):  # Quandl direct HTTP
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.period = 60 * 60  # 1h
-        self.days = 1
         self.maxAge = getattr(self, "maxAge", 5)
 
     def _fetch(self):
@@ -57,6 +53,8 @@ class QuandlPlain(FeedSource):  # Google Finance
                                                         datetime.timedelta(days=self.maxAge),
                                                         "%Y-%m-%d")
                     )
+                    if hasattr(self, "api_key"):
+                        url += "&api_key=%s" % self.api_key
                     response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
                     data = response.json()
                     if "quandl_error" in data:
@@ -65,8 +63,7 @@ class QuandlPlain(FeedSource):  # Google Finance
                         raise Exception("Feed has not returned a dataset for url: %s" % url)
                     d = data["dataset"]
                     if len(d["data"]):
-                        prices.append(d["data"][-1][1])
-
+                        prices.append(d["data"][0][1])
                 feed[base][quote] = {"price": sum(prices) / len(prices),
                                      "volume": 1.0}
         except Exception as e:

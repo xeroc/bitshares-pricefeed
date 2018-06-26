@@ -10,6 +10,9 @@
 #     * Currencylayer (has a a free subscription)
 #     * Quandl (has a a free subscription)
 #     * BitcoinAverage (has a a free subscription)
+#     * Fixer (has a free subscription)
+#     * AlphaVantage (has a free subscription)
+#     * WorldCoinIndex (has a free subscription)
 #     
 # The corresponding variables can be defined in the `exchanges` key.
 
@@ -28,7 +31,7 @@ exchanges:
     ####################################
     google:
         klass: Google
-        enable: True
+        enable: False
         quotes:
             - ARS
             - TRY
@@ -55,6 +58,8 @@ exchanges:
     fixer:
         klass: Fixer
         enable: True
+        api_key: 
+        free_subscription: True
         quotes:
             - EUR
             - USD
@@ -103,11 +108,9 @@ exchanges:
             - KRW
             - SEK
             - RUB
-        base:
+        bases:
             # Only USD with free subscription
             - USD
-        quoteNames:
-            RUB: RUBLE
     currencylayer:
         klass: CurrencyLayer
         enable: True
@@ -131,7 +134,7 @@ exchanges:
             - KRW
             - RUB
             - SEK
-        base:
+        bases:
             # Only USD with free subscription
             - USD
         quoteNames:
@@ -172,20 +175,12 @@ exchanges:
             - USD
             - EUR
             - CNY
-    btcchina:
-        klass: BtcChina
-        enable: False
-        quotes:
-            - BTC
-        bases:
-            - USD
     okcoin:
         klass: Okcoin
         enable: True
         quotes:
             - BTC
         bases:
-            - CNY
             - USD
     huobi:
         klass: Huobi 
@@ -206,7 +201,7 @@ exchanges:
             - BTC
     bittrex:
         klass: Bittrex
-        enable: True
+        enable: False
         quotes:
             - BTS
         bases:
@@ -309,17 +304,14 @@ default:
     # Choose from: - "*": all,
     #              - loaded exchanges (see below)
     sources:
-        - google
         - fixer
         - openexchangerates
         - currencylayer
         - btcavg
         - quandl
         - bitstamp
-        - btcavg
         - okcoin
         - poloniex
-        - bittrex
         - zb
         - coinmarketcap
         - aex
@@ -348,6 +340,7 @@ assets:
     BTC:
     USD:
     CNY:
+        core_exchange_factor: 1.2
     TRY:
     RUBLE:
     EUR:

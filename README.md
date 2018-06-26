@@ -68,6 +68,13 @@ UNLOCK="PASSWD"
 0,15,30,45 * * * * bitshares-pricefeed --configfile /home/ubuntu/config.yml --skip-critical --no-confirm-warning update >> /var/log/bitshares-pricefeed.log 2>&1
 ```
 
+Alternatively build and use the Docker image:
+
+```
+docker build -t bitshares-pricefeed .
+docker run -v /path/to/config:/config -v /path/to/wallet:/root/.local/share/bitshares -e UNLOCK=PASS bitshares-pricefeed
+```
+
 ## Help
 
 ```
@@ -80,6 +87,7 @@ Options:
                                   Need for manual confirmation of warnings
   --skip-critical / --no-skip-critical
                                   Skip critical feeds
+  --node <wss://host:port>        Node to connect to
   --help                          Show this message and exit.
 
 Commands:
@@ -87,6 +95,57 @@ Commands:
   create  Create config file
   update  Update price feed for assets
 ```
+
+## Sources
+
+The following data sources are currently available:
+
+Name | Status | Assets type | API Key | Description
+ --- | ---    | ---         | ---     |   ---
+ AEX |  OK    |   Crypto    | No      | last and volume (in quote currency) from CEX ticker api with 15 sec delay 
+Big.One | KO | Crypto | Yes | not implemented
+BitcoinAverage | KO | Crypto | No | used API is deprecated not maintained anymore, need to be upgraded to ApiV2
+Bitcoin Indonesia | KO | Crypto | No | not working anymore, API has changed
+Bitcoin Venezuela | OK | Crypto | No | ticker from api with 15 minutes delay, no volume
+Bitstamp | OK | Crypto | No | last and volume (in quote currency) from CEX ticker api
+Bittrex | OK | Crypto | No | last and volume (in quote currency) from summary api (bulk)
+ChBTC | WARN | Crypto | No | but price is wierd, seems shutdown? last and volume (in quote currency) from ticker api
+Coincap | OK | ALTCAP & ALTCAP.X | No | use provided market cap, no volume
+Coinmarketcap | OK | Crypto | No | volume weighted average of all prices reported at each market, volume in USD, 5 minutes delay (see https://coinmarketcap.com/faq/). TODO: Migrate to v2 before 30 November 2018
+Currencylayer | OK | FIAT, BTC | Yes | ticker from api, only USD as base and hourly updated with free subscription, no volume info. From various source (https://currencylayer.com/faq)
+Fixer | OK | FIAT | Yes |  Very similar to CurrencyLayer, ticker from api, daily from European Central Bank, only EUR with free subscription, no volume info.
+Google | OK | FIAT, Stocks | No | 4d moving average with 1h scale of "last" price, no volume, 15 minutes delay
+Graphene | OK | Crypto, FIAT, Stocks | No | last and volume (in quote currency) from Bitshares DEX in realtime
+Huobi | KO | Crypto | No | not working anymore, API has changed
+LBank | OK | Crypto | No | last and volume (in quote currency) from CEX API in realtime
+OkCoin  | OK | Crypto | No | last and volume (in quote currency) from CEX API in realtime
+OpenExchangeRates | OK | FIAT, BTC | Yes | ticker from api, only USD as base and hourly updated with free subscription, no volume info. From unknown sources except Bitcoin wich is from CoinDesk (https://openexchangerates.org/faq#sources)
+Poloniex | OK | Crypto | No | last and volume (in quote currency) from CEX API in realtime
+Quantl | OK | Commodities | Yes | daily price from London Bullion Market Association (LBMA), no volume
+ZB | OK | Crypto | No |last and volume (in quote currency) from CEX API in realtime
+AlphaVantage | OK | FIAT, Stocks, BTC | Yes | last from unknown source for currencies and from iex for stocks. volume only for stocks (in nb of shares).
+IEX  | OK | Stocks | No | last ("IEX real time price", "15 minute delayed price", "Close" or "Previous close") and volume. 
+RobinHood | OK | Stocks | No | last, no volume, from unknown source in real time
+WorldCoinIndex | OK | Crypto | Yes| volume weighted price, sum of market volume.
+BitsharesFeed | OK | Crypto (MPA) | No | current feed price in Bitshares DEX, no volume.
+
+
+## Development
+
+To run tests you need get API keys for the providers, and register them as environment variables:
+
+```
+export QUANDL_APIKEY=
+export OPENEXCHANGERATE_APIKEY=
+export FIXER_APIKEY=
+export CURRENCYLAYER_APIKEY=
+export ALPHAVANTAGE_APIKEY=
+export WORLDCOININDEX_APIKEY= 
+```
+
+To run all tests use:  `pytest`.
+
+To run a specific test: `pytest -k bitcoinvenezuela`.
 
 # IMPORTANT NOTE
 

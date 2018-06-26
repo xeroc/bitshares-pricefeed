@@ -1,0 +1,123 @@
+# If true, a new price feed needs manual confirmation
+confirm: True
+
+# The producer name(s)
+producer: $PRODUCER_NAME
+
+# Exchange settings (Here, you may need to add API keys)
+exchanges:
+    # Use IEX (https://iextrading.com/) data.
+    # Alternative sources are available are AlphaVantage and RobinHood. 
+    iex:
+        klass: Iex
+        enable: True
+        equities:               
+            - F:USD
+            - BABA:USD
+            - V:USD
+            - BA:USD
+            - MCD:USD
+            - MSFT:USD
+            - SBUX:USD
+            - NFLX:USD
+            - TSLA:USD
+            - CSCO:USD 
+            - AAPL:USD
+            - EBAY:USD
+            - BIDU:USD
+            - FB:USD
+            - AMZN:USD
+        quoteNames:
+            F: FORDCOM
+            BABA: ALIBABACOM
+            V: VISACOM
+            BA: BOEINGCOM
+            MCD: MCDONALDSCOM
+            MSFT: MICROSOFTCOM
+            SBUX: STARBUCKSCOM
+            NFLX: NETFLIXCOM
+            TSLA: TESLACOM
+            CSCO: CISCOCOM
+            AAPL: APPLECOM
+            EBAY: EBAYCOM
+            BIDU: BAIDUCOM
+            FB: FACEBOOKCOM
+            AMZN: AMAZONCOM
+    # Use BTS:USD price from Bitshares DEX current feed.
+    # Alternatively use Centralized Exchange sources to compute BTS -> BTC -> USD.
+    # or use USD:BTS from Bitshares Market.
+    bitshares:
+        klass: BitsharesFeed
+        enable: True
+        assets:
+            - USD
+default:
+    # Type: extern, formula, alias
+    type: extern
+
+    # max age of a feed
+    maxage: 43200
+
+    # minimum percentage that forces a publish
+    min_change: 0.5
+
+    # warn if price change goes above this percentage
+    warn_change: 1.5
+
+    # skip publishing a feed if price goes above this percentage
+    skip_change: 3
+
+    # how to derive a single price from several sources
+    # Choose from: "median", "mean", or "weighted" (by volume)
+    metric: weighted
+
+    # Select sources for this particular asset. Each source
+    # has its own fetch() method and collects several markets
+    # any market of an exchanges is considered but only the
+    # current asset's price is derived
+    #
+    # Choose from: - "*": all,
+    #              - loaded exchanges (see below)
+    sources:
+        - "*"
+
+    # Core exchange factor for paying transaction fees in
+    # non-BTS assets. Premium of 5%
+    core_exchange_factor: 1.05
+
+    # maintenance collateral ratio (percentage)
+    maintenance_collateral_ratio: 175.0
+
+    # Maximum short squeeze ratio
+    maximum_short_squeeze_ratio: 150.0
+
+    # If set to True, prices are also derived via 3
+    # markets instead of just two:
+    # E.g.: GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
+    derive_across_3markets: False
+
+
+# Enabled assets that are derived if no asset is provided via command
+# line
+assets:
+    FORDCOM:
+    ALIBABACOM:
+    VISACOM:
+    BOEINGCOM:
+    MCDONALDSCOM:
+    MICROSOFTCOM:
+    STARBUCKSCOM:
+    NETFLIXCOM:
+    TESLACOM:
+    CISCOCOM:
+    APPLECOM:
+    EBAYCOM:
+    BAIDUCOM:
+    FACEBOOKCOM:
+    AMAZONCOM:
+
+# Intermediate assets are useful for 2 and 3 market price derivation
+# E.g.: USD:BTC -> BTC:BTS = USD:BTS
+#       GOLD:USD -> USD:BTC -> BTC:BTS = GOLD:BTS
+intermediate_assets:
+    - USD

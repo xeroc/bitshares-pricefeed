@@ -13,26 +13,20 @@ class OpenExchangeRates(FeedSource):  # Hourly updated data with free subscripti
         try:
             for base in self.bases:
                 url = "https://openexchangerates.org/api/latest.json?app_id=%s&base=%s" % (self.api_key, base)
-                if self.free_subscription:
-                    if base == 'USD':
-                        response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
-                        result = response.json()
-                    else:
-                        continue
-                else:
-                    response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
-                    result = response.json()
-                if result.get("base") == base:
-                    feed[base] = {}
-                    for quote in self.quotes:
-                        if quote == base:
-                            continue
-                        if hasattr(self, "quoteNames") and quote in self.quoteNames:
-                            quote = self.quoteNames[quote]
-                        feed[base][quote] = {"price": 1 / result["rates"][quote],
-                                             "volume": 1.0}
-                else:
+                if self.free_subscription and base != 'USD':
+                    continue
+                response = requests.get(url=url, headers=_request_headers, timeout=self.timeout)
+                result = response.json()
+                if result.get("base") != base:
                     raise Exception("Error fetching from url. Returned: {}".format(result))
+                feed[base] = {}
+                for quote in self.quotes:
+                    if quote == base:
+                        continue
+                    if hasattr(self, "quoteNames") and quote in self.quoteNames:
+                        quote = self.quoteNames[quote]
+                    feed[base][quote] = {"price": 1 / result["rates"][quote],
+                                            "volume": 1.0}
         except Exception as e:
             raise Exception("\nError fetching results from {1}! ({0})".format(str(e), type(self).__name__))
         return feed
